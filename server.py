@@ -1,9 +1,14 @@
 #UPD SOCKETS
-import socket
+import socket 
 
+#for ellie, you can do import server and then use variable server.clientmsg
+#clientMsg = ""
+
+#send to 7500
+#recieve from 7501
 
 localIp = "127.0.0.1"
-localPort = 7501
+localPort = 7502
 bufferSize = 1024
 
 #msgFromServer = "Hello world, Hello server\n"
@@ -24,7 +29,7 @@ try:
         #stores message from client and ip address(up to 1024 bytes)
         bytesAddressPair = UPDServerSocket.recvfrom(bufferSize)
         message, address = bytesAddressPair
-    
+   
 
         #formatting message from client into readable strings
         #.decode() removes unwanted stuff/symbols from the message
@@ -42,5 +47,6 @@ try:
         UPDServerSocket.sendto(bytesToSend, address)
 
 except KeyboardInterrupt:
-    #closing socket 
+    #closing socket
     UPDServerSocket.close()
+
