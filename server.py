@@ -1,11 +1,8 @@
 #UPD SOCKETS
 import socket 
-
-
-
-#import main
-#for ellie, you can do import server and then use variable server.clientmsg
-#clientMsg = ""
+#database adaptor
+import psycopg2
+from psycopg2 import sql
 
 #send to 7500
 #recieve from 7501
@@ -18,6 +15,10 @@ with open("network.txt", "w") as file:
 localPort = 7504
 bufferSize = 1024
 
+#define database connection parameters
+config = {
+    'dbname': 'photon'
+}
 
 #msgFromServer = "Hello world, Hello server\n"
 #bytesToSend = str.encode(msgFromServer)
@@ -30,6 +31,21 @@ UPDServerSocket.bind((localIp, localPort))
 
 print("UPD Server up and listening")
 
+#try to connect to database
+try:
+    conn = psycopg2.connect(**config)
+    cur = conn.cursor()
+
+    #execute a query
+    cur.execute("SELECT version();")
+
+    #fetch and display the result
+    version = cur.fetchone()
+    print(f"Connected to - {version}")
+
+except Exception as error:
+    print(f"Error connecting to SQL database: {error}")
+    
 #while program is running
 try:
     while (True):
@@ -48,6 +64,28 @@ try:
         print(clientIp)
         print("")
 
+        #separate client message into player and id
+        split_msg = (message.decode()).split(":")
+
+        #try to add player & id to database
+        try:
+            cur.execute('''
+                INSERT INTO players (id, codename)
+                VALUES (%s, %s);
+            ''', (split_msg[1], split_msg[0]))
+
+            #commit the changes
+            conn.commit()
+
+            #fetch and display the data from the table
+            cur.execute("SELECT * FROM players;")
+            rows = cur.fetchall()
+            for row in rows:
+                print(row)
+
+        except Exception as error:
+            print(f"Error adding clientMsg to database: {error}")
+        
         msgFromServer = "I will be adding:{}\n".format(message.decode())
         bytesToSend = str.encode(msgFromServer)
 
@@ -57,7 +95,14 @@ try:
 except KeyboardInterrupt:
     #closing socket
     UPDServerSocket.close()
-    
+
+finally:
+    #close the cursor and connection
+    if cur:
+        cur.close()
+    if conn:
+        conn.close()
+
 """""
 idea for socket selection, uses gui and dropdown. NEED: how interfaces with UDP work
 import socket
