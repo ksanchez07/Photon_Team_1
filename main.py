@@ -1,4 +1,5 @@
 import tkinter as tk
+#install pip, pillow, and imagetk for this to work
 from PIL import Image, ImageTk
 import subprocess
 
