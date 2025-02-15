@@ -37,3 +37,5 @@ def main_window():
     window.mainloop()
 
 root.after(3000, close_splash) #close splash screen after 3 seconds
+
+root.mainloop()
