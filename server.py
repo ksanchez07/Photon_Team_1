@@ -10,9 +10,12 @@ import socket
 #send to 7500
 #recieve from 7501
 
-
+#this writes the new network to a txt file, then client opens that text file and uses it
 localIp = input("Enter network address: ")
-localPort = 7503
+with open("network.txt", "w") as file:
+    file.write(localIp)
+
+localPort = 7504
 bufferSize = 1024
 
 

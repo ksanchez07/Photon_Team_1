@@ -1,10 +1,13 @@
 import socket
 
 
+#reading the ip from text file and setting it to localIp
+with open("network.txt", "r") as file:
+    localIp = file.read()
 
-localIp = input("Enter network address: ")
+
 #the server we are sending the information to
-trafficAddressPort = (localIp, 7503)
+trafficAddressPort = (localIp, 7504)
 bufferSize = 1024
 
 #creating client side socket
