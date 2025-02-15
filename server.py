@@ -1,15 +1,20 @@
 #UPD SOCKETS
 import socket 
 
+
+
+#import main
 #for ellie, you can do import server and then use variable server.clientmsg
 #clientMsg = ""
 
 #send to 7500
 #recieve from 7501
 
-localIp = "127.0.0.1"
-localPort = 7502
+
+localIp = input("Enter network address: ")
+localPort = 7503
 bufferSize = 1024
+
 
 #msgFromServer = "Hello world, Hello server\n"
 #bytesToSend = str.encode(msgFromServer)

@@ -2,15 +2,16 @@ import socket
 
 
 
-
+localIp = input("Enter network address: ")
 #the server we are sending the information to
-trafficAddressPort = ("127.0.0.1", 7502)
+trafficAddressPort = (localIp, 7503)
 bufferSize = 1024
 
 #creating client side socket
 UPDClientSocket = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
 try:
     while True:
+
         #inputting player information
         msgFromClient = input("Player:Equipment ID\n")
         bytesToSend = str.encode(msgFromClient)
