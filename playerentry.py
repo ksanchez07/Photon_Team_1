@@ -1,8 +1,10 @@
 import tkinter
 from tkinter import *
+import socket
 
 
 class PlayerEntry:
+    
     def __init__(self):
         #self.playerID = None
         #self.playerCodename = None
@@ -22,10 +24,31 @@ class PlayerEntry:
       global playerID, playerCodename
       #playerID = playerIdEntry.get()
       #playerCodename = playerCodenameEntry.get()
-      if not playerID or not playerCodename:
+      if not self.playerIdEntry or not self.playerCodenameEntry:
         print("Both entries must be filled")
         return
       #print(f"Player ID: {playerID}, Player Codename: {playerCodename}")
+
+      #UPD Socket code to send the player entries to server
+
+      #reading the ip from text file and setting it to localIp
+      with open("network.txt", "r") as file:
+        localIp = file.read()
+
+      #the server we are sending the information to
+      #if it says network is being used changed the port(7501) here and on server to a different number,
+      #use the same number for both files though
+      trafficAddressPort = (localIp, 7501)
+      bufferSize = 1024
+
+      #creating client side socket
+      UPDClientSocket = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
+      #inputting player information
+      print(self.playerCodenameEntry)
+      msgFromClient = str(str(self.playerIdEntry.get()) + ":" + str(self.playerCodenameEntry.get()))
+      bytesToSend = str.encode(msgFromClient)
+      #sending the information to ther server
+      UPDClientSocket.sendto(bytesToSend, trafficAddressPort)
 
       self.playerIdEntry.delete(0, END)
       self.playerCodenameEntry.delete(0, END) 
@@ -46,6 +69,9 @@ class PlayerEntry:
 
       submitButton = Button(self.m, text="Submit", command=self.pushPlayers)
       submitButton.grid(row=2, column=0)
+
+
+      
     
     def run(self):
         self.m.mainloop()

@@ -12,7 +12,7 @@ localIp = input("Enter network address: ")
 with open("network.txt", "w") as file:
     file.write(localIp)
 
-localPort = 7504
+localPort = 7501
 bufferSize = 1024
 
 #define database connection parameters
