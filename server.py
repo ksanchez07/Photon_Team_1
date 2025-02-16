@@ -72,7 +72,7 @@ try:
             cur.execute('''
                 INSERT INTO players (id, codename)
                 VALUES (%s, %s);
-            ''', (split_msg[1], split_msg[0]))
+            ''', (split_msg[0], split_msg[1]))
 
             #commit the changes
             conn.commit()
