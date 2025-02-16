@@ -6,7 +6,8 @@ class PlayerEntry:
     def __init__(self):
         #self.playerID = None
         #self.playerCodename = None
-        self.m = tkinter.Tk(screenName="player entry", baseName="photon", className="photon")
+        self.m = tkinter.Tk()
+        self.m.title("Entry Terminal")
         self.m.geometry("1400x800+100+100")
         self.m.configure(bg='black')
         self.create_widgets()
