@@ -1,6 +1,7 @@
 import tkinter as tk
 from PIL import Image, ImageTk
 import subprocess
+from playerentry import PlayerEntry
 
 
 #import subprocess allows to run server at the same time the photon window is open
@@ -29,11 +30,13 @@ def close_splash():
     main_window() #show main window
 
 def main_window():
-    window = tk.Tk()
-    window.title("Main Application")
-    window.geometry("1400x800+100+100")  # Adjust size as needed
-    window.resizable(False,False) #make window unresizable, fixed
-    window.mainloop()
+    player_entry = PlayerEntry()
+    player_entry.run()  # This will open the player entry window
+    # window = tk.Tk()
+    # window.title("Main Application")
+    # window.geometry("1400x800+100+100")  # Adjust size as needed
+    # window.resizable(False,False) #make window unresizable, fixed
+    # window.mainloop()
 
 root.after(3000, close_splash) #close splash screen after 3 seconds
 
