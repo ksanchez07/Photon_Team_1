@@ -13,10 +13,12 @@ SERVER START:
 
 Step 0: Install required dependencies in virtual machine: ```sudo apt update && sudo apt install python3-pip python3-tk python3-pil libpq-dev && pip3 install --upgrade --force-reinstall pillow psycopg2```
 
-Step 1: To start the server input: python3 main.py
+Step 1: To start input the following in terminal: python3 main.py
 
-Step 2: To start the client input in a different terminal while server is running: python3 client.py
+Step 2: Enter the desired ip address so the server can start
 
-Step 3: Enter name and equipment when prompted on client terminal
+Step 3: Enter name and equipment on the desired color
 
-Step 4: If you want to add more name:equipment, restart from step 2, otherwise press control c to close UPD Socket
+Step 4: press submit player
+
+Step 5: View additions in terminal
