@@ -11,6 +11,8 @@ Team 1's repository for Photon project in Software Devolopment Class
 
 SERVER START:
 
+Step 0: Install required dependencies in virtual machine: ```sudo apt update && sudo apt install python3-pip python3-tk python3-pil libpq-dev && pip3 install --upgrade --force-reinstall pillow psycopg2```
+
 Step 1: To start the server input: python3 main.py
 
 Step 2: To start the client input in a different terminal while server is running: python3 client.py
