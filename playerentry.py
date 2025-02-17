@@ -44,107 +44,94 @@ class PlayerEntry:
 
     def pushPlayers(self):
 
-      global playerID, playerCodename
+      all_entries = self.red_entries + self.green_entries
+      for player_id_entry, player_codename_entry, team in all_entries:
+        player_id = player_id_entry.get()
+        player_codename = player_codename_entry.get()
+        if not player_id or not player_codename:
+          print(f"Both entries must be filled for {team} team")
+          continue
 
-      #playerID = playerIdEntry.get()
+        player_codename = player_codename + "_" + team
 
-      #playerCodename = playerCodenameEntry.get()
+          #UPD Socket code to send the player entries to server
 
-      if not self.playerIdEntry or not self.playerCodenameEntry:
+          #reading the ip from text file and setting it to localIp
+        with open("network.txt", "r") as file:
+          localIp = file.read()
 
-        print("Both entries must be filled")
+        #the server we are sending the information to
+        #if it says network is being used changed the port(7501) here and on server to a different number,
+        #use the same number for both files though
+        trafficAddressPort = (localIp, 7501)
+        bufferSize = 1024
 
-        return
+        #creating client side socket
+        UPDClientSocket = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
+        #inputting player information
+        print(player_codename)
+        msgFromClient = str(str(player_id) + ":" + str(player_codename))
+        bytesToSend = str.encode(msgFromClient)
+        #sending the information to ther server
+        UPDClientSocket.sendto(bytesToSend, trafficAddressPort)
 
-      #print(f"Player ID: {playerID}, Player Codename: {playerCodename}")
-
-
-
-      #UPD Socket code to send the player entries to server
-
-
-
-      #reading the ip from text file and setting it to localIp
-
-      with open("network.txt", "r") as file:
-
-        localIp = file.read()
-
-
-
-      #the server we are sending the information to
-
-      #if it says network is being used changed the port(7501) here and on server to a different number,
-
-      #use the same number for both files though
-
-      trafficAddressPort = (localIp, 7501)
-
-      bufferSize = 1024
-
-
-
-      #creating client side socket
-
-      UPDClientSocket = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
-
-      #inputting player information
-
-      print(self.playerCodenameEntry)
-
-      msgFromClient = str(str(self.playerIdEntry.get()) + ":" + str(self.playerCodenameEntry.get()))
-
-      bytesToSend = str.encode(msgFromClient)
-
-      #sending the information to ther server
-
-      UPDClientSocket.sendto(bytesToSend, trafficAddressPort)
-
-
-
-      self.playerIdEntry.delete(0, END)
-
-      self.playerCodenameEntry.delete(0, END) 
+        player_id_entry.delete(0, END)
+        player_codename_entry.delete(0, END) 
 
 
 
     def create_widgets(self):  
-
       validate_id_cmd = self.m.register(self.validate_id)
 
+      red_label = Label(self.m, text="Red Team", fg="red", bg="black")
+      red_label.grid(row=0, column=1, columnspan=2)
 
+      green_label = Label(self.m, text="Green Team", fg="green", bg="black")
+      green_label.grid(row=0, column=4, columnspan=2)
 
-      idLabel = Label(self.m, text="ID")
+      red_id_header = Label(self.m, text="ID", fg="red", bg="black")
+      red_codename_header = Label(self.m, text="Codename", fg="red", bg="black")
+      red_id_header.grid(row=1, column=1)
+      red_codename_header.grid(row=1, column=2)
 
-      codename = Label(self.m, text="Codename")
+      green_id_header = Label(self.m, text="ID", fg="green", bg="black")
+      green_codename_header = Label(self.m, text="Codename", fg="green", bg="black")
+      green_id_header.grid(row=1, column=4)
+      green_codename_header.grid(row=1, column=5)
 
-      idLabel.grid(row=0, column=0)
+      self.red_entries = []
+      self.green_entries = []
 
-      codename.grid(row=0, column=1)
+      for i in range(20):
 
+        
+        red_id_label = Label(self.m, text=f"{i}", fg="red", bg="black")
+        red_id_label.grid(row=i+2, column=0)
 
+        red_id_entry = Entry(self.m, validate="key", validatecommand=(validate_id_cmd, '%P'))
+        red_codename_entry = Entry(self.m)
+        red_id_entry.grid(row=i+2, column=1)
+        red_codename_entry.grid(row=i+2, column=2)
+        self.red_entries.append((red_id_entry, red_codename_entry, "red"))
 
-      self.playerIdEntry = Entry(self.m, validate="key", validatecommand=(validate_id_cmd, '%P'))
+        green_id_label = Label(self.m, text=f"{i}", fg="green", bg="black")
+        green_id_label.grid(row=i+2, column=3)
+        
+        green_id_entry = Entry(self.m, validate="key", validatecommand=(validate_id_cmd, '%P'))
+        green_codename_entry = Entry(self.m)
+        green_id_entry.grid(row=i+2, column=4)
+        green_codename_entry.grid(row=i+2, column=5)
 
-      self.playerCodenameEntry = Entry(self.m)
-
-
-
-      self.playerIdEntry.grid(row=1, column=0)
-
-      self.playerCodenameEntry.grid(row=1, column=1)
-
-
-
-      submitButton = Button(self.m, text="Submit", command=self.pushPlayers)
-
-      submitButton.grid(row=2, column=0)
+        self.green_entries.append((green_id_entry, green_codename_entry, "green"))
+      
+      submit_button = Button(self.m, text="Submit Players", command=self.pushPlayers)
+      submit_button.grid(row=22, column=1, columnspan=5)
 
       
 
-      self.button = Button(self.m, text="Enter Player Information", command=self.show_entry_field, font=("Arial", 20))
+      self.button = Button(self.m, text="Input Network Address", command=self.show_entry_field, font=("Arial", 20))
 
-      self.button.grid(row=3, column=0)
+      self.button.grid(row=24, column=2)
 
 
 
@@ -164,7 +151,7 @@ class PlayerEntry:
 
         # Pack the Entry widget to show it when the button is clicked
 
-        self.entry_field.grid(row=3, column=0)
+        self.entry_field.grid(row=24, column=5)
 
         self.entry_field.focus()  # Set focus on the entry field
 

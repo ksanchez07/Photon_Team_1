@@ -31,8 +31,11 @@ def close_splash():
     main_window() #show main window
 
 def main_window():
+    
     player_entry = PlayerEntry()
     player_entry.run()  # This will open the player entry window
+    
+    
     # window = tk.Tk()
     # window.title("Main Application")
     # window.geometry("1400x800+100+100")  # Adjust size as needed

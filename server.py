@@ -9,10 +9,13 @@ from psycopg2 import sql
 
 
 with open("network.txt", "r") as file:
-        localIp = file.read()
+    localIp = file.read()
+
+print(localIp)
 localPort = 7501
 bufferSize = 1024
-
+print("Testing ip")
+print(localIp)
 #define database connection parameters
 config = {
     'dbname': 'photon'
@@ -26,6 +29,7 @@ UPDServerSocket = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
 
 #binds server to the specific ip/port combination
 UPDServerSocket.bind((localIp, localPort))
+
 
 print("UPD Server up and listening")
 
@@ -55,8 +59,10 @@ try:
 
         #formatting message from client into readable strings
         #.decode() removes unwanted stuff/symbols from the message
+        print("working client")
         clientMsg = "Message from client:{}\n".format(message.decode())
         clientIp = "Client IP Address: {}".format(address)
+        print("ending client")
 
         print(clientMsg, end= "")
         print(clientIp)
