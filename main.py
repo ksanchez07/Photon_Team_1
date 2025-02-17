@@ -5,9 +5,8 @@ import subprocess
 from playerentry import PlayerEntry
 
 
-#import subprocess allows to run server at the same time the photon window is open
-#start server in background
-server = subprocess.Popen(["python3", "server.py"])
+
+
 #create root window for splash screen
 root = tk.Tk()
 

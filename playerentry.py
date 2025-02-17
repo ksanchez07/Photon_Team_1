@@ -4,6 +4,8 @@ from tkinter import *
 
 import socket
 
+import subprocess
+
 
 
 
@@ -59,17 +61,19 @@ class PlayerEntry:
           #reading the ip from text file and setting it to localIp
         with open("network.txt", "r") as file:
           localIp = file.read()
+        
 
         #the server we are sending the information to
         #if it says network is being used changed the port(7501) here and on server to a different number,
         #use the same number for both files though
+      
         trafficAddressPort = (localIp, 7501)
         bufferSize = 1024
 
         #creating client side socket
         UPDClientSocket = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
         #inputting player information
-        print(player_codename)
+        
         msgFromClient = str(str(player_id) + ":" + str(player_codename))
         bytesToSend = str.encode(msgFromClient)
         #sending the information to ther server
@@ -131,7 +135,7 @@ class PlayerEntry:
 
       self.button = Button(self.m, text="Input Network Address", command=self.show_entry_field, font=("Arial", 20))
 
-      self.button.grid(row=24, column=2)
+      self.button.place(x=200, y=555)
 
 
 
@@ -151,7 +155,7 @@ class PlayerEntry:
 
         # Pack the Entry widget to show it when the button is clicked
 
-        self.entry_field.grid(row=24, column=5)
+        self.entry_field.place(x=550, y=560)
 
         self.entry_field.focus()  # Set focus on the entry field
 
@@ -163,14 +167,16 @@ class PlayerEntry:
 
         self.captured_text = self.entry_field.get()  # Get the text from the Entry widget
 
-        print(f"User entered: {self.captured_text}")  # Process or use the text as needed
+        print(f"Using IP: {self.captured_text}")  # Process or use the text as needed
 
         with open("network.txt", "w") as file:
 
             file.write(self.captured_text)
-
+        #import subprocess allows to run server at the same time the photon window is open
+        #start server in background
+        self.server = subprocess.Popen(["python3", "server.py"])
         # Hide the Entry widget after capturing the text
-
+      
         self.entry_field.grid_forget()
 
 
