@@ -48,39 +48,42 @@ class PlayerEntry:
 
       all_entries = self.red_entries + self.green_entries
       for player_id_entry, player_codename_entry, team in all_entries:
+        
         player_id = player_id_entry.get()
         player_codename = player_codename_entry.get()
-        if not player_id or not player_codename:
-          print(f"Both entries must be filled for {team} team")
-          continue
-
-        player_codename = player_codename + "_" + team
+        if(player_id != "" and player_codename != ""):
+          if (player_id and not player_codename) or (player_codename and not player_id):
+            print(f"Both entries must be filled for {team} team")
+            continue
+        
+          if player_codename:
+            player_codename = player_codename + "_" + team
 
           #UPD Socket code to send the player entries to server
 
           #reading the ip from text file and setting it to localIp
-        with open("network.txt", "r") as file:
-          localIp = file.read()
+          with open("network.txt", "r") as file:
+            localIp = file.read()
         
 
-        #the server we are sending the information to
-        #if it says network is being used changed the port(7501) here and on server to a different number,
-        #use the same number for both files though
+          #the server we are sending the information to
+          #if it says network is being used changed the port(7501) here and on server to a different number,
+          #use the same number for both files though
       
-        trafficAddressPort = (localIp, 7501)
-        bufferSize = 1024
+          trafficAddressPort = (localIp, 7501)
+          bufferSize = 1024
 
-        #creating client side socket
-        UPDClientSocket = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
-        #inputting player information
+          #creating client side socket
+          UPDClientSocket = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
+          #inputting player information
         
-        msgFromClient = str(str(player_id) + ":" + str(player_codename))
-        bytesToSend = str.encode(msgFromClient)
-        #sending the information to ther server
-        UPDClientSocket.sendto(bytesToSend, trafficAddressPort)
+          msgFromClient = str(str(player_id) + ":" + str(player_codename))
+          bytesToSend = str.encode(msgFromClient)
+          #sending the information to ther server
+          UPDClientSocket.sendto(bytesToSend, trafficAddressPort)
 
-        player_id_entry.delete(0, END)
-        player_codename_entry.delete(0, END) 
+          player_id_entry.delete(0, END)
+          player_codename_entry.delete(0, END) 
 
 
 
