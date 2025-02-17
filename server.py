@@ -7,11 +7,9 @@ from psycopg2 import sql
 #send to 7500
 #recieve from 7501
 
-#this writes the new network to a txt file, then client opens that text file and uses it
-localIp = input("Enter network address: ")
-with open("network.txt", "w") as file:
-    file.write(localIp)
 
+with open("network.txt", "r") as file:
+        localIp = file.read()
 localPort = 7501
 bufferSize = 1024
 
