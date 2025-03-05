@@ -28,6 +28,8 @@ class PlayerEntry:
 
         self.m.configure(bg='black')
 
+        self.server = subprocess.Popen(["python3", "server.py"])
+
         self.create_widgets()
 
 
@@ -70,7 +72,7 @@ class PlayerEntry:
           #if it says network is being used changed the port(7501) here and on server to a different number,
           #use the same number for both files though
       
-          trafficAddressPort = (localIp, 7501)
+          trafficAddressPort = (localIp, 7500)
           bufferSize = 1024
 
           #creating client side socket
@@ -175,6 +177,9 @@ class PlayerEntry:
         with open("network.txt", "w") as file:
 
             file.write(self.captured_text)
+        if self.server is not None:
+           self.server.terminate()
+           self.server.wait()
         #import subprocess allows to run server at the same time the photon window is open
         #start server in background
         self.server = subprocess.Popen(["python3", "server.py"])

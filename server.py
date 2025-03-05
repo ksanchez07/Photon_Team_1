@@ -12,7 +12,7 @@ with open("network.txt", "r") as file:
     localIp = file.read()
 
 
-localPort = 7501
+localPort = 7500
 bufferSize = 1024
 
 #define database connection parameters
@@ -31,7 +31,8 @@ UPDServerSocket = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
 UPDServerSocket.bind((localIp, localPort))
 
 
-print("UPD Server up and listening")
+print("UPD Server up and listening to ")
+print(localIp)
 
 #try to connect to database
 try:
@@ -55,13 +56,12 @@ try:
         #stores message from client and ip address(up to 1024 bytes)
         bytesAddressPair = UPDServerSocket.recvfrom(bufferSize)
         message, address = bytesAddressPair
-   
-
+        
         #formatting message from client into readable strings
         #.decode() removes unwanted stuff/symbols from the message
         
         clientMsg = "Message from client: {}\n".format(message.decode())
-        #clientIp = "Client IP Address: {}".format(address)
+        #clientIbp = "Client IP Address: {}".format(address)
         
 
         print(clientMsg, end= "")
