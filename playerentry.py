@@ -3,10 +3,6 @@ from tkinter import messagebox
 import socket
 import subprocess
 
-with open("network.txt", "r") as file:
-            localIp = file.read()
-trafficAddressPort = (localIp, 7500)
-bufferSize = 1024
 
 
 class PlayerEntry:
@@ -79,9 +75,14 @@ class PlayerEntry:
             # if id has not been seen before:
             else:
                 # add n to beginning of string to send to server so it knows to add new player to database
+                with open("network.txt", "r") as file:
+                    self.localIp = file.read()
+                    self.trafficAddressPort = (self.localIp, 7500)
+                self.bufferSize = 1024
+
                 msgToSend = "n" + str(red_player_id) + ":" + str(red_codename)
                 bytesToSend = str.encode(msgToSend)
-                self.UDPClientSocket.sendto(bytesToSend, trafficAddressPort)
+                self.UDPClientSocket.sendto(bytesToSend, self.trafficAddressPort)
                 
                 # log that id has been seen before
                 self.all_player_ids.append(red_player_id)
@@ -106,9 +107,14 @@ class PlayerEntry:
             self.red_entries[self.curr_red_row][2].config(state='normal')
             
             # ask server to query database for id
+            with open("network.txt", "r") as file:
+                self.localIp = file.read()
+                self.trafficAddressPort = (self.localIp, 7500)
+            self.bufferSize = 1024
+
             msgToSend = "f" + str(red_player_id)
             bytesToSend = str.encode(msgToSend)
-            self.UDPClientSocket.sendto(bytesToSend, trafficAddressPort)
+            self.UDPClientSocket.sendto(bytesToSend, self.trafficAddressPort)
 
             # receive message from server with found codename or empty string if not found
             serverMessage, serverAddress = self.UDPClientSocket.recvfrom(2048)
@@ -159,9 +165,13 @@ class PlayerEntry:
             # if id has not been seen before:
             else:
                 # add n to beginning of string to send to server so it knows to add new player to database
+                with open("network.txt", "r") as file:
+                    self.localIp = file.read()
+                    self.trafficAddressPort = (self.localIp, 7500)
+                self.bufferSize = 1024
                 msgToSend = "n" + str(green_player_id) + ":" + str(green_codename)
                 bytesToSend = str.encode(msgToSend)
-                self.UDPClientSocket.sendto(bytesToSend, trafficAddressPort)
+                self.UDPClientSocket.sendto(bytesToSend, self.trafficAddressPort)
                 
                 # log that id has been seen before
                 self.all_player_ids.append(green_player_id)
@@ -186,9 +196,13 @@ class PlayerEntry:
             self.green_entries[self.curr_green_row][2].config(state='normal')
             
             # ask server to query database for id
+            with open("network.txt", "r") as file:
+                self.localIp = file.read()
+                self.trafficAddressPort = (self.localIp, 7500)
+            self.bufferSize = 1024
             msgToSend = "f" + str(green_player_id)
             bytesToSend = str.encode(msgToSend)
-            self.UDPClientSocket.sendto(bytesToSend, trafficAddressPort)
+            self.UDPClientSocket.sendto(bytesToSend, self.trafficAddressPort)
 
             # receive message from server with found codename or empty string if not found
             serverMessage, serverAddress = self.UDPClientSocket.recvfrom(2048)
