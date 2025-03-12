@@ -1,7 +1,6 @@
 import tkinter as tk
 #install pip, pillow, and imagetk for this to work
 from PIL import Image, ImageTk
-
 from playerentry import PlayerEntry
 
 
@@ -30,9 +29,6 @@ def close_splash():
     root.destroy() #close splash screen
     main_window() #show main window
 
-def keys(key):
-    if key == keyboard.Key.esc:
-        print("escaping")
 
 
 def main_window():
