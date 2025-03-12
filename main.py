@@ -1,8 +1,10 @@
 import tkinter as tk
 #install pip, pillow, and imagetk for this to work
 from PIL import Image, ImageTk
-import subprocess
+
 from playerentry import PlayerEntry
+from pynput import keyboard
+
 
 
 
@@ -29,11 +31,22 @@ def close_splash():
     root.destroy() #close splash screen
     main_window() #show main window
 
+def keys(key):
+    if key == keyboard.Key.esc:
+        print("escaping")
+
+
 def main_window():
     
+    #uncomment following 2 lines
     player_entry = PlayerEntry()
     player_entry.run()  # This will open the player entry window
+
     
+    
+
+    #countdown_screen = CountdownScreen()
+    #countdown_screen.run()
     
     # window = tk.Tk()
     # window.title("Main Application")

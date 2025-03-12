@@ -2,6 +2,8 @@ from tkinter import *
 from tkinter import messagebox
 import socket
 import subprocess
+from countdownscreen import CountdownScreen
+
 
 
 
@@ -276,7 +278,11 @@ class PlayerEntry:
            
 
     def start_game(self, *args):
-        print("Starting game...")
+        #should i destroy the root? 
+        #if i dont destroy the root then there's going to be 2 pages open
+        self.root.destroy()
+        countdown_screen = CountdownScreen()
+        countdown_screen.run()
     
 
     def create_widgets(self):
