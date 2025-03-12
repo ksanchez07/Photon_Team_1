@@ -1,4 +1,4 @@
-#UPD SOCKETS
+#UDP SOCKETS
 import socket 
 #database adaptor
 import psycopg2
@@ -20,15 +20,13 @@ config = {
     'dbname': 'photon'
 }
 
-#msgFromServer = "Hello world, Hello server\n"
-#bytesToSend = str.encode(msgFromServer)
 
 #creating server socket that will listen for data
-UPDServerSocket = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
+UDPServerSocket = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
 
 
 #binds server to the specific ip/port combination
-UPDServerSocket.bind((localIp, localPort))
+UDPServerSocket.bind((localIp, localPort))
 
 
 print("UPD Server up and listening to ")
@@ -54,12 +52,12 @@ try:
     while (True):
 
         #stores message from client and ip address(up to 1024 bytes)
-        bytesAddressPair = UPDServerSocket.recvfrom(bufferSize)
-        message, address = bytesAddressPair
+        bytesAddressPair = UDPServerSocket.recvfrom(bufferSize)
+        message, clientAddress = bytesAddressPair
         
         #formatting message from client into readable strings
         #.decode() removes unwanted stuff/symbols from the message
-        
+        messageString = message.decode()
         clientMsg = "Message from client: {}\n".format(message.decode())
         #clientIbp = "Client IP Address: {}".format(address)
         
@@ -67,38 +65,41 @@ try:
         print(clientMsg, end= "")
         #print(clientIp)
         print("")
+        
+        # THIS WILL PROB ALL CHANGE BUT IM WORKING WITH IT HOW IT IS FOR NOW
+        # - bc i dont think we are supposed to send back to client like this
+        # - but with how it's set up rn it's the only way to get the info back
+        messageToSend = ""
 
-        #separate client message into player and id
-        split_msg = (message.decode()).split(":")
-
-        #try to add player & id to database
         try:
-            cur.execute('''
-                INSERT INTO players (id, codename)
-                VALUES (%s, %s);
-            ''', (split_msg[0], split_msg[1]))
-
-            #commit the changes
-            conn.commit()
-
-            #fetch and display the data from the table
-            cur.execute("SELECT * FROM players;")
-            rows = cur.fetchall()
-            for row in rows:
-                print(row)
+            # f for find , try to find player id in database, if found send to client
+            if (messageString[0] == 'f'):
+                messageToSend = ""
+                cur.execute("SELECT * FROM players;")
+                rows = cur.fetchall()
+                for row in rows:
+                    if (str(row[0]) == messageString[1:]):
+                        messageToSend = row[1]
+                        break
+                bytesToSend = messageToSend.encode()
+                UDPServerSocket.sendto(bytesToSend, clientAddress)  
+            
+            # n for new, adding a new player to database
+            elif (messageString[0] == 'n'):
+                split_msg = messageString[1:].split(":")
+                cur.execute('''
+                    INSERT INTO players (id, codename)
+                    VALUES (%s, %s);
+                ''', (split_msg[0], split_msg[1]))
+                conn.commit()
+    
 
         except Exception as error:
-            print(f"Error adding clientMsg to database: {error}")
-        
-        msgFromServer = "I will be adding:{}\n".format(message.decode())
-        bytesToSend = str.encode(msgFromServer)
-
-        #sends a message back to the client through its original address
-        UPDServerSocket.sendto(bytesToSend, address)
+            print(f"Error adding player to database: {error}")
 
 except KeyboardInterrupt:
     #closing socket
-    UPDServerSocket.close()
+    UDPServerSocket.close()
 
 finally:
     #close the cursor and connection
