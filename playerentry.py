@@ -414,7 +414,7 @@ class PlayerEntry:
         start_button.place(x=100, y=200)
 
         # bind keys for buttons & entries
-        self.root.bind("<Return>", self.handle_entry_table)
+        self.root.bind("<Tab>", self.handle_entry_table)
         self.root.bind("<F5>", self.start_game)
         self.root.bind("<F12>", self.clear_entries)
 
