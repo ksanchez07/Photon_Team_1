@@ -30,9 +30,6 @@ def close_splash():
     root.destroy() #close splash screen
     main_window() #show main window
 
-def keys(key):
-    if key == keyboard.Key.esc:
-        print("escaping")
 
 
 def main_window():
