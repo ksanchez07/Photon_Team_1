@@ -2,6 +2,7 @@ import time
 from tkinter import *
 from PIL import Image, ImageTk
 from gamescreen import GameScreen
+from transmission import Transmission
 
 
 class CountdownScreen:  
@@ -36,7 +37,7 @@ class CountdownScreen:
         if self.count > 0:
             self.count -= 1
             self.countdown_label.config(text=str(self.count))
-            print(self.count)
+            
             self.root.after(1000, self.countdown)
         else:
             #time is up
@@ -47,6 +48,8 @@ class CountdownScreen:
     def initialize_game(self):
         self.root.destroy()
         game_screen = GameScreen()
+        transmission = Transmission()
+        transmission.transmit(202, 7500)
         game_screen.run() 
 
 
