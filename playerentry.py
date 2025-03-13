@@ -281,10 +281,27 @@ class PlayerEntry:
 
         self.show_network_entry_field()
 
-
-    
     def clear_entries(self, *args):
-        print("Clearing entries...")
+	    print("Clearing entries...")
+        # Clear all red team entries
+	    for row in self.red_entries:
+		    for entry in row:
+			    entry.config(state='normal')  # Unlock the entry field in case it's disabled
+			    entry.delete(0, END)  # Clear the content
+
+		# Clear all green team entries
+	    for row in self.green_entries:
+		    for entry in row:
+			    entry.config(state='normal')  # Unlock the entry field in case it's disabled
+			    entry.delete(0, END)  # Clear the content
+
+		# Reset current rows to 0, so it starts from the first row again
+	    self.curr_red_row = 0
+	    self.curr_green_row = 0
+
+		# Optionally, you can also reset the IDs list if you want
+	    self.all_player_ids.clear()
+
            
 
     def start_game(self, *args):
