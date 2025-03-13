@@ -2,11 +2,10 @@ from tkinter import *
 from tkinter import messagebox
 import socket
 import subprocess
+import psycopg2
+from psycopg2 import sql
 from countdownscreen import CountdownScreen
-#uncomment this to use transmission function
-#from transmission import Transmission
-
-
+from transmission import Transmission
 
 
 class PlayerEntry:
@@ -16,8 +15,6 @@ class PlayerEntry:
         self.curr_red_row = 0
         self.curr_green_row = 0
         self.all_player_ids = []
-        self.server = subprocess.Popen(["python3", "server.py"])
-        self.UDPClientSocket = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
 
     
     def row_is_full(self, entries, row):
@@ -35,12 +32,6 @@ class PlayerEntry:
             return True
         return False
 
-    def ids_are_full(self, entries, row):
-        if (entries[row][0].get() and
-            entries[row][1].get() and
-            not(entries[row][2].get())):
-            return True
-        return False
 
     def hardware_id_empty(self, entries, row):
         if (entries[row][0].get() and
@@ -56,16 +47,55 @@ class PlayerEntry:
         entries[row][2].config(state="readonly")
 
 
+    def open_database(self):
+        #define database connection parameters
+        config = {
+            'dbname': 'photon'
+        }
+        try:
+            self.conn = psycopg2.connect(**config)
+            self.cur = self.conn.cursor()
+
+            #execute a query
+            self.cur.execute("SELECT version();")
+
+            #fetch and display the result
+            version = self.cur.fetchone()
+            print(f"Connected to - {version}")
+
+        except Exception as error:
+            print(f"Error connecting to SQL database: {error}")
+
+    
+    def query_database(self, id):
+        self.cur.execute("SELECT * FROM players;")
+        rows = self.cur.fetchall()
+        for row in rows:
+            if (str(row[0]) == id):
+                return str(row[1])
+        return ""
+
+
+    def add_to_database(self, id, name):
+        self.cur.execute('''
+                INSERT INTO players (id, codename)
+                VALUES (%s, %s);
+                ''', (id, name))
+        self.conn.commit()
+
+    
     # IK THIS IS A HUGE METHOD DW I WILL BREAK IT UP LATER SO ITS MORE READABLE & EFFICIENT - ellie
     def handle_entry_table(self, *args):
         # get current values of current red row
         red_player_id = self.red_entries[self.curr_red_row][0].get()
         red_hardware_id = self.red_entries[self.curr_red_row][1].get()
         red_codename = self.red_entries[self.curr_red_row][2].get()
+        transmission = Transmission()
 
         # check if the whole red row is filled with values
         if (self.row_is_full(self.red_entries, self.curr_red_row)):
-            
+            msgToSend = int(red_hardware_id)
+            transmission.transmit(msgToSend, 7500)
             # check if id has already been seen
             if (red_player_id in self.all_player_ids):
                 # make every entry in row read only so it can't be edited
@@ -78,15 +108,7 @@ class PlayerEntry:
 
             # if id has not been seen before:
             else:
-                # add n to beginning of string to send to server so it knows to add new player to database
-                with open("network.txt", "r") as file:
-                    self.localIp = file.read()
-                    self.trafficAddressPort = (self.localIp, 7500)
-                self.bufferSize = 1024
-
-                msgToSend = "n" + str(red_player_id) + ":" + str(red_codename)
-                bytesToSend = str.encode(msgToSend)
-                self.UDPClientSocket.sendto(bytesToSend, self.trafficAddressPort)
+                self.add_to_database(str(red_player_id), str(red_codename))
                 
                 # log that id has been seen before
                 self.all_player_ids.append(red_player_id)
@@ -98,38 +120,20 @@ class PlayerEntry:
                 self.red_entries[self.curr_red_row][0].config(state='normal')
                 self.red_entries[self.curr_red_row][0].focus_set()
 
-
-        # check if player id & hardware id fields are full and codename is empty
-        elif (self.ids_are_full(self.red_entries, self.curr_red_row)):
-            # move mouse to codename field 
-            self.red_entries[self.curr_red_row][2].focus_set()
-
         
         # check if player id field is full and others are empty
         elif (self.player_id_is_full(self.red_entries, self.curr_red_row)):
             # unlock the codename
             self.red_entries[self.curr_red_row][2].config(state='normal')
             
-            # ask server to query database for id
-            with open("network.txt", "r") as file:
-                self.localIp = file.read()
-                self.trafficAddressPort = (self.localIp, 7500)
-            self.bufferSize = 1024
+            # query database for id
+            found = self.query_database(str(red_player_id))
 
-            msgToSend = "f" + str(red_player_id)
-            bytesToSend = str.encode(msgToSend)
-            self.UDPClientSocket.sendto(bytesToSend, self.trafficAddressPort)
-
-            # receive message from server with found codename or empty string if not found
-            serverMessage, serverAddress = self.UDPClientSocket.recvfrom(2048)
-            serverMessageString = serverMessage.decode()
-
-            # if this is true then a codename was found
-            if (serverMessageString != ""):
+            if (found != ""):
                 # log that player id has been seen
                 self.all_player_ids.append(red_player_id)
                 # fill in codename field
-                self.red_entries[self.curr_red_row][2].insert(0, serverMessageString)
+                self.red_entries[self.curr_red_row][2].insert(0, found)
                 # lock in player id and codename, move focus to hardware id field 
                 self.red_entries[self.curr_red_row][0].config(state='readonly')
                 self.red_entries[self.curr_red_row][1].config(state='normal')
@@ -155,6 +159,8 @@ class PlayerEntry:
 
         # check if the whole green row is filled with values
         if (self.row_is_full(self.green_entries, self.curr_green_row)):
+            msgToSend = int(green_hardware_id)
+            transmission.transmit(msgToSend, 7500)
             
             # check if id has already been seen
             if (green_player_id in self.all_player_ids):
@@ -168,14 +174,7 @@ class PlayerEntry:
 
             # if id has not been seen before:
             else:
-                # add n to beginning of string to send to server so it knows to add new player to database
-                with open("network.txt", "r") as file:
-                    self.localIp = file.read()
-                    self.trafficAddressPort = (self.localIp, 7500)
-                self.bufferSize = 1024
-                msgToSend = "n" + str(green_player_id) + ":" + str(green_codename)
-                bytesToSend = str.encode(msgToSend)
-                self.UDPClientSocket.sendto(bytesToSend, self.trafficAddressPort)
+                self.add_to_database(str(green_player_id), str(green_codename))
                 
                 # log that id has been seen before
                 self.all_player_ids.append(green_player_id)
@@ -187,45 +186,20 @@ class PlayerEntry:
                 self.green_entries[self.curr_green_row][0].config(state='normal')
                 self.green_entries[self.curr_green_row][0].focus_set()
 
-
-        # check if player id & hardware id fields are full and codename is empty
-        elif (self.ids_are_full(self.green_entries, self.curr_green_row)):
-            # move mouse to codename field 
-            self.green_entries[self.curr_green_row][2].focus_set()
-
         
         # check if player id field is full and others are empty
         elif (self.player_id_is_full(self.green_entries, self.curr_green_row)):
             # unlock the codename
             self.green_entries[self.curr_green_row][2].config(state='normal')
             
-            # ask server to query database for id
-            with open("network.txt", "r") as file:
-                self.localIp = file.read()
-                self.trafficAddressPort = (self.localIp, 7500)
-            self.bufferSize = 1024
-            msgToSend = "f" + str(green_player_id)
-            bytesToSend = str.encode(msgToSend)
-            self.UDPClientSocket.sendto(bytesToSend, self.trafficAddressPort)
+            # query database for id
+            found = self.query_database(str(green_player_id))
 
-            #to use transmission.py uncomment this and transmission import from top of the file
-            #delete everything from with open line to self.udpClientSocket line
-            #msgToSend = green_player_id
-            #transmission = Transmission()
-            #transmission.transmit(msgToSend, 7500)
-            # it only works with numbers, it converts to string inside the function, so if we do this
-            #we wont be able to send f + str, so idk if we should use it if you need that
-
-            # receive message from server with found codename or empty string if not found
-            serverMessage, serverAddress = self.UDPClientSocket.recvfrom(2048)
-            serverMessageString = serverMessage.decode()
-
-            # if this is true then a codename was found
-            if (serverMessageString != ""):
+            if (found != ""):
                 # log that player id has been seen
                 self.all_player_ids.append(green_player_id)
                 # fill in codename field
-                self.green_entries[self.curr_green_row][2].insert(0, serverMessageString)
+                self.green_entries[self.curr_green_row][2].insert(0, found)
                 # lock in player id and codename, move focus to hardware id field 
                 self.green_entries[self.curr_green_row][0].config(state='readonly')
                 self.green_entries[self.curr_green_row][1].config(state='normal')
@@ -252,13 +226,6 @@ class PlayerEntry:
         with open("network.txt", "w") as file:
 
             file.write(self.captured_text)
-        if self.server is not None:
-           self.server.terminate()
-           self.server.wait()
-        #import subprocess allows to run server at the same time the photon window is open
-        #start server in background
-        self.server = subprocess.Popen(["python3", "server.py"])
-        # Hide the Entry widget after capturing the text
       
         self.net_entry_field.place_forget()
 
@@ -283,38 +250,38 @@ class PlayerEntry:
 
         self.show_network_entry_field()
 
+    
     def clear_entries(self, *args):
-        print("clearing entries...")
-
-
-    def clear_entries(self, *args):
-        print("clearing entries...")
-        
+        print("Clearing entries...")
         # Clear all red team entries
         for row in self.red_entries:
             for entry in row:
-                entry.config(state='normal')# Unlock the entry field in case it's disabled
-                entry.delete(0,END)# Clear the content
-
-        #Clear all green team entries
+                entry.config(state='normal')  # Unlock the entry field in case it's disabled
+                entry.delete(0, END)  # Clear the content
+                entry.config(state='disabled') # need to disable it again so it matching beginning
+        
+        # Clear all green team entries:
         for row in self.green_entries:
             for entry in row:
-                entry.config(state='normal')  # Unlock the entry field in case it's disabled
-                entry.delete(0, END)# Clear the content
-                
-        
-		# Reset current rows to 0, so it starts from the first row again
+                entry.config(state='normal') # Unlock the entry field in case it's disabled
+                entry.delete(0, END) # Clear the content
+                entry.config(state='disabled')
+
+        # Reset current rows to 0, so it starts from the first row again
         self.curr_red_row = 0
         self.curr_green_row = 0
+        # also need to unlock row 0 col 0
+        self.red_entries[self.curr_red_row][0].config(state='normal')
+        self.green_entries[self.curr_green_row][0].config(state='normal')
+        # and also set focus again
+        self.red_entries[self.curr_red_row][0].focus_set()
 
-		# Optionally, you can also reset the IDs list if you want
+        # Optionally, you can also reset the IDs list if you want
         self.all_player_ids.clear()
-	  
-
            
 
     def start_game(self, *args):
-        #should i destroy the root? 
+        #should i destroy the root? it's prob fine 
         #if i dont destroy the root then there's going to be 2 pages open
         self.root.destroy()
         countdown_screen = CountdownScreen()
@@ -470,7 +437,7 @@ class PlayerEntry:
         start_button.place(x=100, y=200)
 
         # bind keys for buttons & entries
-        self.root.bind("<Tab>", self.handle_entry_table)
+        self.root.bind("<Return>", self.handle_entry_table)
         self.root.bind("<F5>", self.start_game)
         self.root.bind("<F12>", self.clear_entries)
 
@@ -478,4 +445,5 @@ class PlayerEntry:
     # run player entry screen
     def run(self):
         self.create_widgets()
+        self.open_database()
         self.root.mainloop()
