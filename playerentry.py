@@ -3,6 +3,8 @@ from tkinter import messagebox
 import socket
 import subprocess
 from countdownscreen import CountdownScreen
+#uncomment this to use transmission function
+#from transmission import Transmission
 
 
 
@@ -205,6 +207,14 @@ class PlayerEntry:
             msgToSend = "f" + str(green_player_id)
             bytesToSend = str.encode(msgToSend)
             self.UDPClientSocket.sendto(bytesToSend, self.trafficAddressPort)
+
+            #to use transmission.py uncomment this and transmission import from top of the file
+            #delete everything from with open line to self.udpClientSocket line
+            #msgToSend = green_player_id
+            #transmission = Transmission()
+            #transmission.transmit(msgToSend, 7500)
+            # it only works with numbers, it converts to string inside the function, so if we do this
+            #we wont be able to send f + str, so idk if we should use it if you need that
 
             # receive message from server with found codename or empty string if not found
             serverMessage, serverAddress = self.UDPClientSocket.recvfrom(2048)

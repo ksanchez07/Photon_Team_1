@@ -22,3 +22,5 @@ Step 3: Enter name and equipment on the desired color
 Step 4: press submit player
 
 Step 5: View additions in terminal
+
+Look at line 211 in playerentry.py and line 51 in coundownscreen.py for reference on how to use transmission function
