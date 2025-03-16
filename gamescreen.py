@@ -53,7 +53,7 @@ class GameScreen:
                 r = r + 1 
             else:
                 player_label = Label(green_frame,
-                                    bg='red4',
+                                    bg='dark green',
                                     fg='RosyBrown1',
                                     font=("Courier New", 8),
                                     text=f"{codename}")
