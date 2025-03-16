@@ -284,7 +284,7 @@ class PlayerEntry:
         #should i destroy the root? it's prob fine 
         #if i dont destroy the root then there's going to be 2 pages open
         self.root.destroy()
-        countdown_screen = CountdownScreen()
+        countdown_screen = CountdownScreen(self.red_entries, self.green_entries)
         countdown_screen.run()
     
 
