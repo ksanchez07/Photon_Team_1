@@ -17,10 +17,6 @@ Step 1: To start input the following in terminal: python3 main.py
 
 Step 2: Enter the desired ip address so the server can start
 
-Step 3: Enter name and equipment on the desired color
+Step 3: Enter player ID and hardware ID on the desired color by inputting and pressing Enter
 
-Step 4: press submit player
-
-Step 5: View additions in terminal
-
-Look at line 211 in playerentry.py and line 51 in coundownscreen.py for reference on how to use transmission function
+Step 4: Press F5 to initialize game
