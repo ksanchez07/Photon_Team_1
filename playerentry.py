@@ -5,6 +5,7 @@ import subprocess
 import psycopg2
 from psycopg2 import sql
 from countdownscreen import CountdownScreen
+from player import Player
 from transmission import Transmission
 
 
@@ -12,6 +13,7 @@ class PlayerEntry:
     def __init__(self):
         self.red_entries = []
         self.green_entries = []
+        self.players = []
         self.curr_red_row = 0
         self.curr_green_row = 0
         self.all_player_ids = []
@@ -102,9 +104,11 @@ class PlayerEntry:
                 self.readonly_row(self.red_entries, self.curr_red_row)
                 # move to row below
                 self.curr_red_row = self.curr_red_row + 1
-                # un-disable player id entry field of new row & move mouse to field
+                # un-disable players id entry field of new row & move mouse to field
                 self.red_entries[self.curr_red_row][0].config(state='normal')
                 self.red_entries[self.curr_red_row][0].focus_set()
+                # add to players
+                self.players.append(Player(red_player_id, red_hardware_id, red_codename, "red"))
 
             # if id has not been seen before:
             else:
@@ -171,6 +175,8 @@ class PlayerEntry:
                 # un-disable player id entry field of new row & move mouse to field
                 self.green_entries[self.curr_green_row][0].config(state='normal')
                 self.green_entries[self.curr_green_row][0].focus_set()
+                # add to players
+                self.players.append(Player(green_player_id, green_hardware_id, green_codename, "green"))
 
             # if id has not been seen before:
             else:
@@ -284,7 +290,7 @@ class PlayerEntry:
         #should i destroy the root? it's prob fine 
         #if i dont destroy the root then there's going to be 2 pages open
         self.root.destroy()
-        countdown_screen = CountdownScreen(self.red_entries, self.green_entries)
+        countdown_screen = CountdownScreen(self.players)
         countdown_screen.run()
     
 
