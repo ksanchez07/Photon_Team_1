@@ -1,10 +1,9 @@
 from tkinter import *
 
 class GameScreen:
-    def __init__(self, red_entries, green_entries):
+    def __init__(self, players):
         self.root = None
-        self.red_entries = red_entries
-        self.green_entries = green_entries
+        self.players = players
     def create_widgets(self):
         self.root = Tk()
         self.root.title("Game Screen")
@@ -40,24 +39,28 @@ class GameScreen:
                                  text="GREEN TEAM")
         green_frame.place(x=int(self.root.winfo_width() * 0.666), y=0)
         # add red team names 
-        for i, row in (self.red_entries):
-            codename = row[2].get()
-            player_label = Label(red_frame,
-                                 bg='red4',
-                                 fg='RosyBrown1',
-                                 font=("Courier New", 8),
-                                 text=f"{codename}")
-            player_label.place(x=10, y=30 + (i * 20)) 
-        # add green team names
-        for i, row in (self.green_entries):
-            codename = row[2].get()
-            player_label = Label(green_frame,
-                                 bg='red4',
-                                 fg='RosyBrown1',
-                                 font=("Courier New", 8),
-                                 text=f"{codename}")
-            player_label.place(x=10, y=30 + (i * 20)) 
+        r = 0
+        g = 0
+        for player in (self.players):
+            codename = player.codename
+            if player.team == "red":
+                player_label = Label(red_frame,
+                                    bg='red4',
+                                    fg='RosyBrown1',
+                                    font=("Courier New", 8),
+                                    text=f"{codename}")
+                player_label.place(x=10, y=30 + (r * 20))
+                r = r + 1 
+            else:
+                player_label = Label(green_frame,
+                                    bg='red4',
+                                    fg='RosyBrown1',
+                                    font=("Courier New", 8),
+                                    text=f"{codename}")
+                player_label.place(x=10, y=30 + (g * 20)) 
+                g = g + 1
 
     def run(self):
         self.create_widgets()
         self.root.mainloop()
+
