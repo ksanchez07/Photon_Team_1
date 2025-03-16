@@ -7,7 +7,7 @@ from transmission import Transmission
 
 class CountdownScreen:  
     #not sure what to put in init so its just passing so i can use self   
-    def init(self, red_entries, green_entries):
+    def __init__(self, red_entries, green_entries):
         self.red_entries = red_entries
         self.green_entries = green_entries
         
