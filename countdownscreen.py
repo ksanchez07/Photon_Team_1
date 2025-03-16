@@ -7,9 +7,8 @@ from transmission import Transmission
 
 class CountdownScreen:  
     #not sure what to put in init so its just passing so i can use self   
-    def __init__(self, red_entries, green_entries):
-        self.red_entries = red_entries
-        self.green_entries = green_entries
+    def __init__(self, players):
+        self.players = players
         
     #creates the screen
     def create_widgets(self):
@@ -48,7 +47,7 @@ class CountdownScreen:
     #whenever countdown finished it closes this page and opens game screen
     def initialize_game(self):
         self.root.destroy()
-        game_screen = GameScreen(self.red_entries, self.green_entries)
+        game_screen = GameScreen(self.players)
         transmission = Transmission()
         transmission.transmit(202, 7500)
         game_screen.run() 
