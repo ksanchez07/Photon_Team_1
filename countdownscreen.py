@@ -48,8 +48,6 @@ class CountdownScreen:
     def initialize_game(self):
         self.root.destroy()
         game_screen = GameScreen(self.players)
-        transmission = Transmission()
-        transmission.transmit(202, 7500)
         game_screen.run() 
 
 
