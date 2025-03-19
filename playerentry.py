@@ -107,8 +107,7 @@ class PlayerEntry:
                 # un-disable players id entry field of new row & move mouse to field
                 self.red_entries[self.curr_red_row][0].config(state='normal')
                 self.red_entries[self.curr_red_row][0].focus_set()
-                # add to players
-                self.players.append(Player(red_player_id, red_hardware_id, red_codename, "red"))
+            
 
             # if id has not been seen before:
             else:
@@ -123,7 +122,8 @@ class PlayerEntry:
                 # un-disable player id entry field of new row & move mouse to field
                 self.red_entries[self.curr_red_row][0].config(state='normal')
                 self.red_entries[self.curr_red_row][0].focus_set()
-
+            # add to players
+            self.players.append(Player(red_player_id, red_hardware_id, red_codename, "red"))
         
         # check if player id field is full and others are empty
         elif (self.player_id_is_full(self.red_entries, self.curr_red_row)):
