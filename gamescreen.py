@@ -99,7 +99,8 @@ class GameScreen:
                 player_label.place(x=10, y=30 + (g * 20)) 
                 g = g + 1
 
-        
+    def return_to_player_entry(self):
+        return
 
     def run(self):
         self.create_widgets()
