@@ -1,6 +1,7 @@
 from tkinter import *
 import socket
 import multiprocessing
+import threading
 from transmission import Transmission
 
 
@@ -8,6 +9,9 @@ class GameScreen:
     def __init__(self, players):
         self.root = None
         self.players = players
+        
+        
+        
         
         #initializes bind and starts multiprocess for listen function
         self.UDPServerSocketReceive = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
@@ -18,8 +22,8 @@ class GameScreen:
 
         clientAddressPort   = (localIp, 7501)
         self.UDPServerSocketReceive.bind(clientAddressPort)
-        process = multiprocessing.Process(target=self.listen)
-        process.start()
+        #process = multiprocessing.Process(target=self.listen)
+        #process.start()
         
 
     def listen(self):
@@ -40,8 +44,34 @@ class GameScreen:
             print ("Received from traffic generator: " + received_data)
             player_hit = received_data.split(":")
             message = player_hit[1]
+            
+
+            #finding the row with person who's hardware id got the points and
+            #adds the points to them
+            pointReceiver = player_hit[0]          
+            for player in self.players:
+                if player.hardware_id == pointReceiver:
+                    if message == '53':
+                        #red base has been hit
+                        if player.team == "green":
+                            player.codename = "B" + player.codename
+                            player.points += 100
+                    elif message == '43':
+                        #green base has been hit
+                        if player.team == "red":
+                            player.codename = "B" + player.codename
+                            player.points += 100
+                    else:
+                        player.points += 10
+                    self.updatePlayer()
+                    
+
+            
             self.UDPClientSocketTransmit.sendto(str.encode(str(message)), serverAddressPort)
             print ('')
+    
+
+            
 
     def create_widgets(self):
         self.root = Tk()
@@ -49,9 +79,16 @@ class GameScreen:
         self.root.configure(background='gray17')
         self.root.geometry("1300x800")
 
+        #change to 6 minutes when you do the actual timer
+        self.count = 60
+
         # update geometry
         self.root.update()
 
+        self.updatePlayer()
+       
+    
+    def updatePlayer(self):
         # calculate dimensions for the frames
         frame_width = int(self.root.winfo_width() * 0.333) 
         frame_height = self.root.winfo_height()
@@ -82,12 +119,13 @@ class GameScreen:
         g = 0
         for player in (self.players):
             codename = player.codename
+            points = player.points
             if player.team == "red":
                 player_label = Label(red_frame,
                                     bg='red4',
                                     fg='RosyBrown1',
                                     font=("Courier New", 8),
-                                    text=f"{codename}")
+                                    text=f"{codename}  {points}")
                 player_label.place(x=10, y=30 + (r * 20))
                 r = r + 1 
             else:
@@ -95,14 +133,30 @@ class GameScreen:
                                     bg='dark green',
                                     fg='RosyBrown1',
                                     font=("Courier New", 8),
-                                    text=f"{codename}")
+                                    text=f"{codename}  {points}")
                 player_label.place(x=10, y=30 + (g * 20)) 
                 g = g + 1
 
     def return_to_player_entry(self):
         return
+    
+    def countdown(self):
+        if self.count > 0:
+            self.count -= 1
+            print(self.count)
+            
+            self.root.after(1000, self.countdown)
+        else:
+            #transmitting the code 3 times
+            transmission = Transmission()
+            transmission.transmit(221, 7500)
+            transmission.transmit(221, 7500)
+            transmission.transmit(221, 7500)
 
     def run(self):
         self.create_widgets()
+        self.countdown()
+        thread = threading.Thread(target=self.listen, daemon=True)
+        thread.start()
         self.root.mainloop()
 

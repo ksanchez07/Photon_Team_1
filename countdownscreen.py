@@ -3,6 +3,7 @@ from tkinter import *
 from PIL import Image, ImageTk
 from gamescreen import GameScreen
 from transmission import Transmission
+from player import Player
 
 
 class CountdownScreen:  
