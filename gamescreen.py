@@ -7,10 +7,9 @@ from transmission import Transmission
 
 class GameScreen:
     def __init__(self, players):
-        self.root = None
         self.players = players
         
-        
+       
         
         
         #initializes bind and starts multiprocess for listen function
@@ -63,7 +62,6 @@ class GameScreen:
                             player.points += 100
                     else:
                         player.points += 10
-                    self.updatePlayer()
                     
 
             
@@ -71,13 +69,12 @@ class GameScreen:
             print ('')
     
 
-            
 
     def create_widgets(self):
         self.root = Tk()
         self.root.title("Game Screen")
-        self.root.configure(background='gray17')
-        self.root.geometry("1300x800")
+        self.root.configure(background='black')
+        self.root.geometry("1200x700")
 
         #change to 6 minutes when you do the actual timer
         self.count = 60
@@ -85,57 +82,130 @@ class GameScreen:
         # update geometry
         self.root.update()
 
-        self.updatePlayer()
-       
+        points_action = LabelFrame(self.root,
+                               bg = 'gray17',
+                               width = 1100,
+                               height = 600,
+                               highlightbackground = "cyan",
+                               highlightthickness =  4)
+
+        points_action.place(x=50, y=50)
+
+        action_scroll = LabelFrame(points_action,
+                               bg = 'gray17',
+                               width = 1080,
+                               height = 200,
+                               highlightbackground = "cyan",
+                               highlightthickness = 4)
     
-    def updatePlayer(self):
-        # calculate dimensions for the frames
-        frame_width = int(self.root.winfo_width() * 0.333) 
-        frame_height = self.root.winfo_height()
+        action_scroll.place(x=5, y=340)
 
-        # red teams frame
-        red_frame = LabelFrame(self.root,
-                               bg='red4',
-                               fg='RosyBrown1',
-                               labelanchor="n",
-                               height=frame_height,
-                               width=frame_width,
-                               font=("Courier New", 10, "bold"),
-                               text="RED TEAM")
-        red_frame.place(x=0, y=0)
+        action_label = Label(points_action,
+                         bg = 'gray17',
+                         fg = 'cyan',
+                         font = ('Courier New', 16, 'bold'),
+                         text = 'CURRENT GAME ACTION')
+        action_label.place(x=810, y=330)
 
-        # green teams frame
-        green_frame = LabelFrame(self.root,
-                                 bg='dark green',
-                                 fg='PaleGreen1',
-                                 labelanchor="n",
-                                 height=frame_height,
-                                 width=frame_width,
-                                 font=("Courier New", 10, "bold"),
-                                 text="GREEN TEAM")
-        green_frame.place(x=int(self.root.winfo_width() * 0.666), y=0)
-        # add red team names 
+        red_team_label = Label(points_action,
+                           bg = 'gray17',
+                           fg = 'cyan',
+                           font = ('Courier New', 20, 'bold'),
+                           text = 'RED TEAM')
+        red_team_label.place(x=200, y=5)
+
+        green_team_label = Label(points_action,
+                             bg = 'gray17',
+                             fg = 'cyan',
+                             font = ('Courier New', 20, 'bold'),
+                             text = 'GREEN TEAM')
+        green_team_label.place(x=720, y=5)
+
+        red_team_frame = LabelFrame(points_action,
+                                bg = 'gray17',
+                                width = 400,
+                                height = 280)
+        red_team_frame.place(x=70, y=40)
+        red_team_frame.grid_propagate(False)
+        red_team_frame.columnconfigure(0, weight=1)
+        red_team_frame.columnconfigure(1, weight=1)
+
+        green_team_frame = LabelFrame(points_action,
+                                  bg = 'gray17',
+                                  width = 400,
+                                  height = 280)
+        green_team_frame.place(x=610, y=40)
+        green_team_frame.grid_propagate(False)
+        green_team_frame.columnconfigure(0, weight=1)
+        green_team_frame.columnconfigure(1, weight=1)
+
+        red_total_points = Label(points_action,
+                                bg = 'gray17',
+                                fg = 'red',
+                                font = ('Courier New', 20, 'bold'),
+                                text = '0')
+        red_total_points.place(x=350, y=5)
+
+        green_total_points = Label(points_action,
+                                bg = 'gray17',
+                                fg = 'green',
+                                font = ('Courier New', 20, 'bold'),
+                                text = '0')
+        green_total_points.place(x=900, y=5)
+
+        time_left_label = Label(points_action,
+                                bg = 'gray17',
+                                fg = 'cyan',
+                                font = ('Courier New', 20, 'bold'),
+                                text = 'TIME REMAINING:')
+        time_left_label.place(x=740, y=550)
+
+        self.countdown_label = Label(points_action,
+                                bg = 'gray17',
+                                fg = 'cyan',
+                                font = ('Courier New', 20, 'bold'),
+                                text = '6:00')
+        self.countdown_label.place(x=1000, y=550)
+
         r = 0
         g = 0
         for player in (self.players):
             codename = player.codename
-            points = player.points
             if player.team == "red":
-                player_label = Label(red_frame,
-                                    bg='red4',
-                                    fg='RosyBrown1',
-                                    font=("Courier New", 8),
-                                    text=f"{codename}  {points}")
-                player_label.place(x=10, y=30 + (r * 20))
+                name_label = Label(red_team_frame,
+                                bg='gray17',
+                                fg='red',
+                                font=("Courier New", 16, 'bold'),
+                                text=f"{codename}")
+                name_label.grid(row=r, column=0, sticky='w')
+
+                points_label = Label(red_team_frame,
+                                bg = 'gray17',
+                                fg='red',
+                                font=("Courier New", 16, 'bold'),
+                                text = "0")
+                points_label.grid(row=r, column=1, sticky='e')
+                player.ranking = r
                 r = r + 1 
             else:
-                player_label = Label(green_frame,
-                                    bg='dark green',
-                                    fg='RosyBrown1',
-                                    font=("Courier New", 8),
-                                    text=f"{codename}  {points}")
-                player_label.place(x=10, y=30 + (g * 20)) 
+                name_label = Label(green_team_frame,
+                                bg='gray17',
+                                fg='green',
+                                font=("Courier New", 16, 'bold'),
+                                text=f"{codename}")
+                name_label.grid(row=g, column=0, sticky='w')
+
+                points_label = Label(green_team_frame,
+                                bg='gray17',
+                                fg='green',
+                                font=("Courier New", 16, 'bold'),
+                                text = "0")
+                points_label.grid(row=g, column=1, sticky='e') 
                 g = g + 1
+
+        #self.updatePlayer()     
+  
+                             
 
     def return_to_player_entry(self):
         return
@@ -143,8 +213,13 @@ class GameScreen:
     def countdown(self):
         if self.count > 0:
             self.count -= 1
-            print(self.count)
+
+            if self.count >= 10:
+                self.countdown_label.configure(text=f"0:{self.count}")
+            else:
+                self.countdown_label.configure(text=f"0:0{self.count}")
             
+            print(self.count)
             self.root.after(1000, self.countdown)
         else:
             #transmitting the code 3 times
@@ -159,4 +234,5 @@ class GameScreen:
         thread = threading.Thread(target=self.listen, daemon=True)
         thread.start()
         self.root.mainloop()
+
 
