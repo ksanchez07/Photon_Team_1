@@ -86,7 +86,6 @@ class PlayerEntry:
         self.conn.commit()
 
     
-    # IK THIS IS A HUGE METHOD DW I WILL BREAK IT UP LATER SO ITS MORE READABLE & EFFICIENT - ellie
     def handle_entry_table(self, *args):
         # get current values of current red row
         red_player_id = self.red_entries[self.curr_red_row][0].get()
@@ -132,7 +131,8 @@ class PlayerEntry:
                 "p_id" : red_player_id,
                 "name" : red_codename,
                 "team" : "red",
-                "points" : 0
+                "points" : 0,
+                "rank" : 0
             }
         
         # check if player id field is full and others are empty
@@ -206,7 +206,8 @@ class PlayerEntry:
                 "p_id" : green_player_id,
                 "name" : green_codename,
                 "team" : "green",
-                "points" : 0
+                "points" : 0,
+                "rank" : 0
             }
 
         # check if player id field is full and others are empty
@@ -257,7 +258,7 @@ class PlayerEntry:
         
         # Pack the Entry widget to show it when the button is clicked
 
-        self.net_entry_field.place(x=610, y=558)
+        self.net_entry_field.place(x=560, y=558)
 
         self.net_entry_field.focus()  # Set focus on the entry field
 
@@ -300,6 +301,7 @@ class PlayerEntry:
 
         # Optionally, you can also reset the IDs list if you want
         self.all_player_ids.clear()
+        self.players.clear()
            
 
     def start_game(self, *args):
@@ -315,7 +317,7 @@ class PlayerEntry:
         self.root = Tk()
         self.root.title("Entry Terminal")
         self.root.configure(background='gray17')
-        self.root.geometry("1300x800")
+        self.root.geometry("1200x700")
 
         # create title label
         title = Label(self.root, 
@@ -323,7 +325,7 @@ class PlayerEntry:
                       fg='DeepSkyBlue2', 
                       font=("Corier New", 16, "bold"), 
                       text="ADD PLAYERS TO GAME")
-        title.place(x=620, y=10)
+        title.place(x=570, y=10)
 
         # create red frame
         red_frame = LabelFrame(self.root, 
@@ -334,7 +336,7 @@ class PlayerEntry:
                                width="415", 
                                font=("Corier New", 10, "bold"), 
                                text="RED TEAM")
-        red_frame.place(x=350, y=50)
+        red_frame.place(x=300, y=50)
         red_frame.grid_propagate(False)
         
         # create red frame labels
@@ -366,7 +368,7 @@ class PlayerEntry:
                                  width="415", 
                                  font=("Corier New", 10, "bold"), 
                                  text="GREEN TEAM")
-        green_frame.place(x=765, y=50)
+        green_frame.place(x=715, y=50)
         green_frame.grid_propagate(False)
 
         # create green frame labels
@@ -432,7 +434,7 @@ class PlayerEntry:
                                 height=2,
                                 width=15,
                                 command=self.change_network)
-        network_button.place(x=690, y=600)
+        network_button.place(x=640, y=600)
 
         clear_button = Button(self.root, 
                                activebackground="DeepSkyBlue3", 
@@ -444,7 +446,7 @@ class PlayerEntry:
                                height=5,
                                width=9,
                                command=self.clear_entries)
-        clear_button.place(x=100, y=50)
+        clear_button.place(x=90, y=50)
 
         start_button = Button(self.root, 
                               activebackground="DeepSkyBlue3", 
@@ -456,7 +458,7 @@ class PlayerEntry:
                               height=5,
                               width=9,
                               command=self.start_game)
-        start_button.place(x=100, y=200)
+        start_button.place(x=90, y=200)
 
         # bind keys for buttons & entries
         self.root.bind("<Return>", self.handle_entry_table)
