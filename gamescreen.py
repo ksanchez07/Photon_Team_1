@@ -8,7 +8,9 @@ from transmission import Transmission
 class GameScreen:
     def __init__(self, players):
         self.players = players
-        
+        self.red_total = 0
+        self.green_total = 0
+        self.scores_equal = True
        
         
         
@@ -55,13 +57,19 @@ class GameScreen:
                 if self.players[pointReceiver]["team"] == "green":
                     self.players[pointReceiver]["name"] = "B" + self.players[pointReceiver]["name"]
                     self.players[pointReceiver]["points"] += 100
+                    self.green_total += 100
             elif message == '43':
                 #green base has been hit
                 if self.players[pointReceiver]["team"] == "red":
                     self.players[pointReceiver]["name"] = "B" + self.players[pointReceiver]["name"]
                     self.players[pointReceiver]["points"] += 100
+                    self.red_total += 100
             else:
                 self.players[pointReceiver]["points"] += 10
+                if self.players[pointReceiver]["team"] == "green":
+                    self.green_total += 10
+                else:
+                    self.red_total += 10
 
 
             #delete from here
@@ -69,13 +77,54 @@ class GameScreen:
             nameDisplay = self.players[pointReceiver]["name"]
             print(f"player:{nameDisplay} has scored and now has {pointsDisplay} points")
             #to here after testing
-                    
 
+            self.update_points(pointReceiver) 
+            if (self.red_total == self.green_total):
+                self.scores_equal = True
+            elif (self.red_total > self.green_total):
+                self.highest = self.r_points_label
+                self.high_color = "red"
+                self.scores_equal = False
+            else:
+                self.highest = self.g_points_label
+                self.high_color = "green"
+                self.scores_equal = False
+            
             
             self.UDPClientSocketTransmit.sendto(str.encode(str(message)), serverAddressPort)
             print ('')
     
 
+
+    def update_points(self, pointReceiver):
+        team = self.players[pointReceiver]["team"]
+        rank = self.players[pointReceiver]["rank"]
+        points = self.players[pointReceiver]["points"]
+        if (team == "red"):
+            self.r_points_label.configure(text=f"{self.red_total}")
+            self.r_display_grid[rank][1].configure(text=f"{points}")
+        else:
+            self.g_points_label.configure(text=f"{self.green_total}")
+            self.g_display_grid[rank][1].configure(text=f"{points}")
+
+
+    def stop_flash(self):
+        self.highest.configure(fg=self.high_color)
+
+
+    def flash(self):
+        if (self.count > 0):
+            if (self.scores_equal):
+                self.stop_flash()
+                pass
+            elif (self.highest.cget("fg") == "snow"):
+                self.highest.configure(fg=self.high_color)
+            else:
+                self.highest.configure(fg="snow")
+            self.root.after(500, self.flash)
+        else:
+            self.stop_flash()
+        
 
     def create_widgets(self):
         self.root = Tk()
@@ -83,7 +132,7 @@ class GameScreen:
         self.root.configure(background='black')
         self.root.geometry("1200x700")
 
-        #change to 6 minutes when you do the actual timer
+        #change to 6 minutes (360 secs) when you do the actual timer
         self.count = 60
 
         # update geometry
@@ -146,19 +195,19 @@ class GameScreen:
         green_team_frame.columnconfigure(0, weight=1)
         green_team_frame.columnconfigure(1, weight=1)
 
-        red_total_points = Label(points_action,
+        self.r_points_label = Label(points_action,
                                 bg = 'gray17',
                                 fg = 'red',
                                 font = ('Courier New', 20, 'bold'),
                                 text = '0')
-        red_total_points.place(x=350, y=5)
+        self.r_points_label.place(x=350, y=5)
 
-        green_total_points = Label(points_action,
+        self.g_points_label = Label(points_action,
                                 bg = 'gray17',
                                 fg = 'green',
                                 font = ('Courier New', 20, 'bold'),
                                 text = '0')
-        green_total_points.place(x=900, y=5)
+        self.g_points_label.place(x=900, y=5)
 
         time_left_label = Label(points_action,
                                 bg = 'gray17',
@@ -174,6 +223,12 @@ class GameScreen:
                                 text = '6:00')
         self.countdown_label.place(x=1000, y=550)
 
+        self.highest = self.r_points_label
+        self.high_color = "red"
+        self.flash()
+
+        self.r_display_grid = []
+        self.g_display_grid = []
         r = 0
         g = 0
         for player in (self.players):
@@ -193,7 +248,9 @@ class GameScreen:
                                 font=("Courier New", 16, 'bold'),
                                 text = "0")
                 points_label.grid(row=r, column=1, sticky='e')
-                #player.ranking = r
+
+                self.r_display_grid.append([name_label, points_label])
+                self.players[player]["rank"] = r
                 r = r + 1 
             else:
                 name_label = Label(green_team_frame,
@@ -208,7 +265,10 @@ class GameScreen:
                                 fg='green',
                                 font=("Courier New", 16, 'bold'),
                                 text = "0")
-                points_label.grid(row=g, column=1, sticky='e') 
+                points_label.grid(row=g, column=1, sticky='e')
+
+                self.g_display_grid.append([name_label, points_label]) 
+                self.players[player]["rank"] = g
                 g = g + 1
 
         #self.updatePlayer()     
@@ -221,8 +281,33 @@ class GameScreen:
     def countdown(self):
         if self.count > 0:
             self.count -= 1
-
-            if self.count >= 10:
+            
+            if self.count >= 300:
+                self.countdown_label.configure(text=f"5:{self.count - 300}")
+                if ((self.count - 300) < 10):
+                    self.countdown_label.configure(text=f"5:0{self.count - 300}")
+            
+            elif self.count >= 240:
+                self.countdown_label.configure(text=f"4:{self.count - 240}")
+                if ((self.count - 240) < 10):
+                    self.countdown_label.configure(text=f"4:0{self.count - 240}")
+            
+            elif self.count >= 180:
+                self.countdown_label.configure(text=f"3:{self.count - 180}")
+                if ((self.count - 180) < 10):
+                    self.countdown_label.configure(text=f"3:0{self.count - 180}")
+            
+            elif self.count >= 120:
+                self.countdown_label.configure(text=f"2:{self.count - 120}")
+                if ((self.count - 120) < 10):
+                    self.countdown_label.configure(text=f"2:0{self.count - 120}")
+            
+            elif self.count >= 60:
+                self.countdown_label.configure(text=f"1:{self.count - 60}")
+                if ((self.count - 60) < 10):
+                    self.countdown_label.configure(text=f"1:0{self.count - 60}")
+            
+            elif self.count >= 10:
                 self.countdown_label.configure(text=f"0:{self.count}")
             else:
                 self.countdown_label.configure(text=f"0:0{self.count}")
@@ -242,5 +327,8 @@ class GameScreen:
         thread = threading.Thread(target=self.listen, daemon=True)
         thread.start()
         self.root.mainloop()
+
+
+
 
 
