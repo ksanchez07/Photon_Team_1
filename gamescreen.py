@@ -17,6 +17,7 @@ class GameScreen:
         #initializes bind and starts multiprocess for listen function
         self.UDPServerSocketReceive = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
         self.UDPClientSocketTransmit = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
+        self.UDPServerSocketReceive.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         
         with open("network.txt", "r") as file:
             localIp = file.read()
@@ -276,6 +277,12 @@ class GameScreen:
                              
 
     def return_to_player_entry(self):
+        
+        from playerentry import PlayerEntry
+        self.root.destroy()
+
+        player_entry = PlayerEntry()
+        player_entry.run()  # This will open the player entry window
         return
     
     def countdown(self):
@@ -320,7 +327,49 @@ class GameScreen:
             transmission.transmit(221, 7500)
             transmission.transmit(221, 7500)
             transmission.transmit(221, 7500)
+            self.UDPServerSocketReceive.close()
+            self.UDPServerSocketReceive = None  # Reset the socket
+            self.show_game_over_screen()
+            
+    def show_game_over_screen(self):
+        # Clear the current window
+        for widget in self.root.winfo_children():
+            widget.destroy()
 
+        self.root.configure(bg='black')
+
+        # Game over title
+        game_over_label = Label(
+            self.root,
+            text="GAME OVER",
+            fg="red",
+            bg="black",
+            font=("Courier New", 40, "bold")
+        )
+        game_over_label.pack(pady=50)
+
+        # Final scores title
+        final_scores_label = Label(
+            self.root,
+            text="FINAL SCORES",
+            fg="cyan",
+            bg="black",
+            font=("Courier New", 30, "bold")
+        )
+        final_scores_label.pack(pady=20)
+        # Exit button
+        exit_button = Button(
+            self.root,
+            text="Player Entry",
+            command=self.return_to_player_entry,
+            bg="gray17",
+            fg="white",
+            font=("Courier New", 16, "bold"),
+            padx=10,
+            pady=5
+        )
+        exit_button.pack(pady=30)
+        
     def run(self):
         self.create_widgets()
         self.countdown()
