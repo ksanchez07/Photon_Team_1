@@ -13,7 +13,7 @@ class PlayerEntry:
     def __init__(self):
         self.red_entries = []
         self.green_entries = []
-        self.players = []
+        self.players = {}
         self.curr_red_row = 0
         self.curr_green_row = 0
         self.all_player_ids = []
@@ -78,11 +78,11 @@ class PlayerEntry:
         return ""
 
 
-    def add_to_database(self, id, name, points):
+    def add_to_database(self, id, name):
         self.cur.execute('''
-                INSERT INTO players (id, codename, points)
-                VALUES (%s, %s, %s);
-                ''', (id, name, points))
+                INSERT INTO players (id, codename)
+                VALUES (%s, %s);
+                ''', (id, name))
         self.conn.commit()
 
     
@@ -115,7 +115,7 @@ class PlayerEntry:
             # if id has not been seen before:
             else:
                 
-                self.add_to_database(str(red_player_id), str(red_codename), int(points))
+                self.add_to_database(str(red_player_id), str(red_codename))
                 
                 # log that id has been seen before
                 self.all_player_ids.append(red_player_id)
@@ -127,7 +127,13 @@ class PlayerEntry:
                 self.red_entries[self.curr_red_row][0].config(state='normal')
                 self.red_entries[self.curr_red_row][0].focus_set()
             # add to players
-            self.players.append(Player(red_player_id, red_hardware_id, red_codename, "red", points))
+            #self.players.append(Player(red_player_id, red_hardware_id, red_codename, "red", points))
+            self.players[red_hardware_id] = {
+                "p_id" : red_player_id,
+                "name" : red_codename,
+                "team" : "red",
+                "points" : 0
+            }
         
         # check if player id field is full and others are empty
         elif (self.player_id_is_full(self.red_entries, self.curr_red_row)):
@@ -183,7 +189,7 @@ class PlayerEntry:
 
             # if id has not been seen before:
             else:
-                self.add_to_database(str(green_player_id), str(green_codename), int(points))
+                self.add_to_database(str(green_player_id), str(green_codename))
                 
                 # log that id has been seen before
                 self.all_player_ids.append(green_player_id)
@@ -195,8 +201,14 @@ class PlayerEntry:
                 self.green_entries[self.curr_green_row][0].config(state='normal')
                 self.green_entries[self.curr_green_row][0].focus_set()
             # add to players
-            self.players.append(Player(green_player_id, green_hardware_id, green_codename, "green", points))
-        
+            #self.players.append(Player(green_player_id, green_hardware_id, green_codename, "green", points))
+            self.players[green_hardware_id] = {
+                "p_id" : green_player_id,
+                "name" : green_codename,
+                "team" : "green",
+                "points" : 0
+            }
+
         # check if player id field is full and others are empty
         elif (self.player_id_is_full(self.green_entries, self.curr_green_row)):
             # unlock the codename

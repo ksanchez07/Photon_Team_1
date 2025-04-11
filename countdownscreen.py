@@ -17,7 +17,7 @@ class CountdownScreen:
         self.root.title("Countdown Screen")
         self.root.configure(background='gray17')
         self.root.geometry("1300x800")
-        self.count = 30
+        self.count = 3
 
         #load the background image
         self.bg_image = Image.open("background.png")

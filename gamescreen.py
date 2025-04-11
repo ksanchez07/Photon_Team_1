@@ -48,20 +48,27 @@ class GameScreen:
             #finding the row with person who's hardware id got the points and
             #adds the points to them
             pointReceiver = player_hit[0]          
-            for player in self.players:
-                if player.hardware_id == pointReceiver:
-                    if message == '53':
-                        #red base has been hit
-                        if player.team == "green":
-                            player.codename = "B" + player.codename
-                            player.points += 100
-                    elif message == '43':
-                        #green base has been hit
-                        if player.team == "red":
-                            player.codename = "B" + player.codename
-                            player.points += 100
-                    else:
-                        player.points += 10
+            
+                
+            if message == '53':
+                #red base has been hit
+                if self.players[pointReceiver]["team"] == "green":
+                    self.players[pointReceiver]["name"] = "B" + self.players[pointReceiver]["name"]
+                    self.players[pointReceiver]["points"] += 100
+            elif message == '43':
+                #green base has been hit
+                if self.players[pointReceiver]["team"] == "red":
+                    self.players[pointReceiver]["name"] = "B" + self.players[pointReceiver]["name"]
+                    self.players[pointReceiver]["points"] += 100
+            else:
+                self.players[pointReceiver]["points"] += 10
+
+
+            #delete from here
+            pointsDisplay = self.players[pointReceiver]["points"]
+            nameDisplay = self.players[pointReceiver]["name"]
+            print(f"player:{nameDisplay} has scored and now has {pointsDisplay} points")
+            #to here after testing
                     
 
             
@@ -170,8 +177,9 @@ class GameScreen:
         r = 0
         g = 0
         for player in (self.players):
-            codename = player.codename
-            if player.team == "red":
+            codename = self.players[player]["name"]
+            print(codename)
+            if self.players[player]["team"] == "red":
                 name_label = Label(red_team_frame,
                                 bg='gray17',
                                 fg='red',
@@ -185,7 +193,7 @@ class GameScreen:
                                 font=("Courier New", 16, 'bold'),
                                 text = "0")
                 points_label.grid(row=r, column=1, sticky='e')
-                player.ranking = r
+                #player.ranking = r
                 r = r + 1 
             else:
                 name_label = Label(green_team_frame,
