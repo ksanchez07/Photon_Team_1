@@ -60,6 +60,9 @@ class GameScreen:
                     self.players[pointReceiver]["points"] += 100
                     self.green_total += 100
                     
+                    rank = self.players[pointReceiver]["rank"]
+                    self.g_display_grid[rank][0].configure(text=f"🄱 {name}")
+                    
                     self.scroll_text.insert(END, f"{name} ", "green")
                     self.scroll_text.insert(END, "hit the ")
                     self.scroll_text.insert(END, "RED BASE\n", "red")
@@ -68,6 +71,9 @@ class GameScreen:
                 if self.players[pointReceiver]["team"] == "red":
                     self.players[pointReceiver]["points"] += 100
                     self.red_total += 100
+                    
+                    rank = self.players[pointReceiver]["rank"]
+                    self.r_display_grid[rank][0].configure(text=f"🄱 {name}")
 
                     self.scroll_text.insert(END, f"{name} ", "red")
                     self.scroll_text.insert(END, "hit the ")
@@ -282,6 +288,7 @@ class GameScreen:
                                 font=("Courier New", 16, 'bold'),
                                 text = "0")
                 points_label.grid(row=r, column=1, sticky='e')
+                
 
                 self.r_display_grid.append([name_label, points_label])
                 self.players[player]["rank"] = r
