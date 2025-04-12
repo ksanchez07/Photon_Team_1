@@ -11,6 +11,7 @@ class GameScreen:
         self.red_total = 0
         self.green_total = 0
         self.scores_equal = True
+        self.scroll_full = False
        
         
         
@@ -50,28 +51,42 @@ class GameScreen:
 
             #finding the row with person who's hardware id got the points and
             #adds the points to them
-            pointReceiver = player_hit[0]          
-            
+            pointReceiver = player_hit[0]         
+            name = self.players[pointReceiver]["name"]
                 
             if message == '53':
                 #red base has been hit
                 if self.players[pointReceiver]["team"] == "green":
-                    self.players[pointReceiver]["name"] = "B" + self.players[pointReceiver]["name"]
                     self.players[pointReceiver]["points"] += 100
                     self.green_total += 100
+                    
+                    self.scroll_text.insert(END, f"{name} ", "green")
+                    self.scroll_text.insert(END, "hit the ")
+                    self.scroll_text.insert(END, "RED BASE\n", "red")
             elif message == '43':
                 #green base has been hit
                 if self.players[pointReceiver]["team"] == "red":
-                    self.players[pointReceiver]["name"] = "B" + self.players[pointReceiver]["name"]
                     self.players[pointReceiver]["points"] += 100
                     self.red_total += 100
+
+                    self.scroll_text.insert(END, f"{name} ", "red")
+                    self.scroll_text.insert(END, "hit the ")
+                    self.scroll_text.insert(END, "GREEN BASE\n", "green")
             else:
+                name_hit = self.players[message]["name"]
                 self.players[pointReceiver]["points"] += 10
                 if self.players[pointReceiver]["team"] == "green":
                     self.green_total += 10
+                    self.scroll_text.insert(END, f"{name} ", "green")
+                    self.scroll_text.insert(END, "hit ")
+                    self.scroll_text.insert(END, f"{name_hit}\n", "red")
                 else:
                     self.red_total += 10
+                    self.scroll_text.insert(END, f"{name} ", "red")
+                    self.scroll_text.insert(END, "hit ")
+                    self.scroll_text.insert(END, f"{name_hit}\n", "green")
 
+            self.scroll_text.see("end")
 
             #delete from here
             pointsDisplay = self.players[pointReceiver]["points"]
@@ -125,6 +140,7 @@ class GameScreen:
             self.root.after(500, self.flash)
         else:
             self.stop_flash()
+
         
 
     def create_widgets(self):
@@ -157,6 +173,17 @@ class GameScreen:
     
         action_scroll.place(x=5, y=340)
 
+        self.scroll_text = Text(action_scroll, 
+                                bg='gray17', 
+                                fg='cyan',
+                                bd=0,
+                                highlightthickness=0,
+                                borderwidth=0, 
+                                font=('Courier New', 16, 'bold'))
+        self.scroll_text.place(x=5, y=5, width=1000, height=180)
+        self.scroll_text.tag_config("red", foreground="red")
+        self.scroll_text.tag_config("green", foreground="green")
+
         action_label = Label(points_action,
                          bg = 'gray17',
                          fg = 'cyan',
@@ -169,7 +196,7 @@ class GameScreen:
                            fg = 'cyan',
                            font = ('Courier New', 20, 'bold'),
                            text = 'RED TEAM')
-        red_team_label.place(x=200, y=5)
+        red_team_label.place(x=190, y=5)
 
         green_team_label = Label(points_action,
                              bg = 'gray17',
@@ -180,6 +207,9 @@ class GameScreen:
 
         red_team_frame = LabelFrame(points_action,
                                 bg = 'gray17',
+                                bd=0,
+                                highlightthickness=0,
+                                borderwidth=0,
                                 width = 400,
                                 height = 280)
         red_team_frame.place(x=70, y=40)
@@ -189,6 +219,9 @@ class GameScreen:
 
         green_team_frame = LabelFrame(points_action,
                                   bg = 'gray17',
+                                  bd=0,
+                                  highlightthickness=0,
+                                  borderwidth=0,
                                   width = 400,
                                   height = 280)
         green_team_frame.place(x=610, y=40)
@@ -283,7 +316,7 @@ class GameScreen:
 
         player_entry = PlayerEntry()
         player_entry.run()  # This will open the player entry window
-        return
+        
     
     def countdown(self):
         if self.count > 0:
@@ -376,6 +409,12 @@ class GameScreen:
         thread = threading.Thread(target=self.listen, daemon=True)
         thread.start()
         self.root.mainloop()
+
+
+
+
+
+
 
 
 
