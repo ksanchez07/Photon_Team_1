@@ -5,7 +5,7 @@ from gamescreen import GameScreen
 from transmission import Transmission
 from player import Player
 import pygame
-
+import random
 
 class CountdownScreen:  
     #not sure what to put in init so its just passing so i can use self   
@@ -39,7 +39,18 @@ class CountdownScreen:
     def countdown(self):
         if self.count > 0:
             if self.count == 15:
-                pygame.mixer.music.load("track4.mp3")
+                tracks = [
+                    "track1.mp3", 
+                    "track2.mp3", 
+                    "track3.mp3", 
+                    "track4.mp3", 
+                    "track5.mp3", 
+                    "track6.mp3", 
+                    "track7.mp3", 
+                    "track8.mp3"
+                ]
+                selectedTrack = random.choice(tracks)
+                pygame.mixer.music.load(selectedTrack)
                 pygame.mixer.music.play(-1)    
             self.countdown_label.config(text=str(self.count))
             delay = 1000
