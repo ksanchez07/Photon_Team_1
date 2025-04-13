@@ -4,10 +4,12 @@ from PIL import Image, ImageTk
 from gamescreen import GameScreen
 from transmission import Transmission
 from player import Player
+import pygame
 
 
 class CountdownScreen:  
     #not sure what to put in init so its just passing so i can use self   
+    pygame.mixer.init()
     def __init__(self, players):
         self.players = players
         
@@ -17,7 +19,7 @@ class CountdownScreen:
         self.root.title("Countdown Screen")
         self.root.configure(background='gray17')
         self.root.geometry("1300x800")
-        self.count = 3
+        self.count = 30
 
         #load the background image
         self.bg_image = Image.open("background.png")
@@ -36,10 +38,16 @@ class CountdownScreen:
     #finish my part of when countdown finishes it goes to the game screen
     def countdown(self):
         if self.count > 0:
-            self.count -= 1
+            if self.count == 15:
+                pygame.mixer.music.load("track4.mp3")
+                pygame.mixer.music.play(-1)    
             self.countdown_label.config(text=str(self.count))
-            
-            self.root.after(1000, self.countdown)
+            delay = 1000
+            if self.count <= 5:
+                delay = 1500
+
+            self.count -= 1
+            self.root.after(delay, self.countdown)            
         else:
             #time is up
             #pause for a second
