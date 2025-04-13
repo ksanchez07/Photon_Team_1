@@ -49,7 +49,7 @@ class CountdownScreen:
                     "track7.mp3", 
                     "track8.mp3"
                 ]
-                selectedTrack = random.choice(tracks)
+                selectedTrack = "music/" + random.choice(tracks)
                 pygame.mixer.music.load(selectedTrack)
                 pygame.mixer.music.play(-1)    
             self.countdown_label.config(text=str(self.count))
