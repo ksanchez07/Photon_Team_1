@@ -95,6 +95,7 @@ class GameScreen:
                         self.scroll_text.insert(END, f"{name_hit} (+10)\n", "green")
                 else:
                     self.players[pointReceiver]["points"] -= 10
+                    self.UDPClientSocketTransmit.sendto(str.encode(str(pointReceiver)), serverAddressPort)
                     if self.players[pointReceiver]["team"] == "green":
                         self.green_total -= 10
                         self.scroll_text.insert(END, f"{name} ", "green")
