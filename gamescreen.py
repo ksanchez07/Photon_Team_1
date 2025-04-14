@@ -81,17 +81,30 @@ class GameScreen:
                     self.scroll_text.insert(END, "GREEN BASE\n", "green")
             else:
                 name_hit = self.players[message]["name"]
-                self.players[pointReceiver]["points"] += 10
-                if self.players[pointReceiver]["team"] == "green":
-                    self.green_total += 10
-                    self.scroll_text.insert(END, f"{name} ", "green")
-                    self.scroll_text.insert(END, "hit ")
-                    self.scroll_text.insert(END, f"{name_hit}\n", "red")
+                if self.players[pointReceiver]["team"] != self.players[message]["team"]:
+                    self.players[pointReceiver]["points"] += 10
+                    if self.players[pointReceiver]["team"] == "green":
+                        self.green_total += 10
+                        self.scroll_text.insert(END, f"{name} ", "green")
+                        self.scroll_text.insert(END, "hit ")
+                        self.scroll_text.insert(END, f"{name_hit} (+10)\n", "red")
+                    else:
+                        self.red_total += 10
+                        self.scroll_text.insert(END, f"{name} ", "red")
+                        self.scroll_text.insert(END, "hit ")
+                        self.scroll_text.insert(END, f"{name_hit} (+10)\n", "green")
                 else:
-                    self.red_total += 10
-                    self.scroll_text.insert(END, f"{name} ", "red")
-                    self.scroll_text.insert(END, "hit ")
-                    self.scroll_text.insert(END, f"{name_hit}\n", "green")
+                    self.players[pointReceiver]["points"] -= 10
+                    if self.players[pointReceiver]["team"] == "green":
+                        self.green_total -= 10
+                        self.scroll_text.insert(END, f"{name} ", "green")
+                        self.scroll_text.insert(END, "hit teammate ")
+                        self.scroll_text.insert(END, f"{name_hit} (-10)\n", "green")
+                    else:
+                        self.red_total -= 10
+                        self.scroll_text.insert(END, f"{name} ", "red")
+                        self.scroll_text.insert(END, "hit teammate ")
+                        self.scroll_text.insert(END, f"{name_hit} (-10)\n", "red")
 
             self.scroll_text.see("end")
 
