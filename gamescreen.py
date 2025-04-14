@@ -12,6 +12,7 @@ class GameScreen:
         self.green_total = 0
         self.scores_equal = True
         self.scroll_full = False
+        self.run_flag = True
        
         
         
@@ -41,7 +42,7 @@ class GameScreen:
         transmission.transmit(202, 7500)
 
         received_data = ' '
-        while received_data != '202':
+        while received_data != '202' and self.run_flag == True:
             received_data, address = self.UDPServerSocketReceive.recvfrom(bufferSize)
             received_data = received_data.decode('utf-8')
             print ("Received from traffic generator: " + received_data)
@@ -93,12 +94,6 @@ class GameScreen:
                     self.scroll_text.insert(END, f"{name_hit}\n", "green")
 
             self.scroll_text.see("end")
-
-            #delete from here
-            pointsDisplay = self.players[pointReceiver]["points"]
-            nameDisplay = self.players[pointReceiver]["name"]
-            print(f"player:{nameDisplay} has scored and now has {pointsDisplay} points")
-            #to here after testing
 
             self.update_points(pointReceiver) 
             if (self.red_total == self.green_total):
@@ -273,7 +268,6 @@ class GameScreen:
         g = 0
         for player in (self.players):
             codename = self.players[player]["name"]
-            print(codename)
             if self.players[player]["team"] == "red":
                 name_label = Label(red_team_frame,
                                 bg='gray17',
@@ -319,6 +313,9 @@ class GameScreen:
     def return_to_player_entry(self):
         
         from playerentry import PlayerEntry
+        self.run_flag = False
+        self.UDPServerSocketReceive.close()
+        self.UDPServerSocketReceive = None  # Reset the socket
         self.root.destroy()
 
         player_entry = PlayerEntry()
@@ -359,7 +356,7 @@ class GameScreen:
             else:
                 self.countdown_label.configure(text=f"0:0{self.count}")
             
-            print(self.count)
+            
             self.root.after(1000, self.countdown)
         else:
             #transmitting the code 3 times
@@ -367,36 +364,11 @@ class GameScreen:
             transmission.transmit(221, 7500)
             transmission.transmit(221, 7500)
             transmission.transmit(221, 7500)
-            self.UDPServerSocketReceive.close()
-            self.UDPServerSocketReceive = None  # Reset the socket
+            
             self.show_game_over_screen()
             
     def show_game_over_screen(self):
-        # Clear the current window
-        for widget in self.root.winfo_children():
-            widget.destroy()
-
-        self.root.configure(bg='black')
-
-        # Game over title
-        game_over_label = Label(
-            self.root,
-            text="GAME OVER",
-            fg="red",
-            bg="black",
-            font=("Courier New", 40, "bold")
-        )
-        game_over_label.pack(pady=50)
-
-        # Final scores title
-        final_scores_label = Label(
-            self.root,
-            text="FINAL SCORES",
-            fg="cyan",
-            bg="black",
-            font=("Courier New", 30, "bold")
-        )
-        final_scores_label.pack(pady=20)
+        
         # Exit button
         exit_button = Button(
             self.root,
@@ -408,7 +380,7 @@ class GameScreen:
             padx=10,
             pady=5
         )
-        exit_button.pack(pady=30)
+        exit_button.pack(side=BOTTOM, pady=30)
         
     def run(self):
         self.create_widgets()
@@ -416,6 +388,16 @@ class GameScreen:
         thread = threading.Thread(target=self.listen, daemon=True)
         thread.start()
         self.root.mainloop()
+
+
+
+
+
+
+
+
+
+
 
 
 
