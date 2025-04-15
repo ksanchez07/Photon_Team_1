@@ -3,6 +3,7 @@ import socket
 import multiprocessing
 import threading
 from transmission import Transmission
+import pygame
 
 
 class GameScreen:
@@ -361,6 +362,7 @@ class GameScreen:
     def return_to_player_entry(self):
         
         from playerentry import PlayerEntry
+        pygame.mixer.music.stop()
         self.run_flag = False
         self.UDPServerSocketReceive.close()
         self.UDPServerSocketReceive = None  # Reset the socket
