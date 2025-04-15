@@ -11,8 +11,9 @@ class GameScreen:
         self.red_total = 0
         self.green_total = 0
         self.scores_equal = True
-        self.scroll_full = False
         self.run_flag = True
+        self.red_players = {}
+        self.green_players = {}
        
         
         
@@ -60,48 +61,61 @@ class GameScreen:
                 if self.players[pointReceiver]["team"] == "green":
                     self.players[pointReceiver]["points"] += 100
                     self.green_total += 100
+                    self.update_rankings("green")
                     
                     rank = self.players[pointReceiver]["rank"]
+                    self.players[pointReceiver]["name"] = "🄱 " + name
                     self.g_display_grid[rank][0].configure(text=f"🄱 {name}")
                     
                     self.scroll_text.insert(END, f"{name} ", "green")
                     self.scroll_text.insert(END, "hit the ")
-                    self.scroll_text.insert(END, "RED BASE\n", "red")
+                    self.scroll_text.insert(END, "RED BASE ", "red")
+                    self.scroll_text.insert(END, "(+100)\n", "green")
             elif message == '43':
                 #green base has been hit
                 if self.players[pointReceiver]["team"] == "red":
                     self.players[pointReceiver]["points"] += 100
                     self.red_total += 100
+                    self.update_rankings("red")
                     
                     rank = self.players[pointReceiver]["rank"]
+                    self.players[pointReceiver]["name"] = "🄱 " + name
                     self.r_display_grid[rank][0].configure(text=f"🄱 {name}")
 
                     self.scroll_text.insert(END, f"{name} ", "red")
                     self.scroll_text.insert(END, "hit the ")
-                    self.scroll_text.insert(END, "GREEN BASE\n", "green")
+                    self.scroll_text.insert(END, "GREEN BASE ", "green")
+                    self.scroll_text.insert(END, "(+100)\n", "red")
             else:
                 name_hit = self.players[message]["name"]
                 if self.players[pointReceiver]["team"] != self.players[message]["team"]:
                     self.players[pointReceiver]["points"] += 10
                     if self.players[pointReceiver]["team"] == "green":
+                        self.update_rankings("green")
                         self.green_total += 10
                         self.scroll_text.insert(END, f"{name} ", "green")
                         self.scroll_text.insert(END, "hit ")
-                        self.scroll_text.insert(END, f"{name_hit} (+10)\n", "red")
+                        self.scroll_text.insert(END, f"{name_hit} ", "red")
+                        self.scroll_text.insert(END, "(+10)\n", "green")
                     else:
+                        self.update_rankings("red")
                         self.red_total += 10
                         self.scroll_text.insert(END, f"{name} ", "red")
                         self.scroll_text.insert(END, "hit ")
-                        self.scroll_text.insert(END, f"{name_hit} (+10)\n", "green")
+                        self.scroll_text.insert(END, f"{name_hit} ", "green")
+                        self.scroll_text.insert(END, "(+10)\n", "red")
                 else:
                     self.players[pointReceiver]["points"] -= 10
-                    self.UDPClientSocketTransmit.sendto(str.encode(str(pointReceiver)), serverAddressPort)
+                    #self.UDPClientSocketTransmit.sendto(str.encode(str(pointReceiver)), serverAddressPort)
+                    message = pointReceiver
                     if self.players[pointReceiver]["team"] == "green":
+                        self.update_rankings("green")
                         self.green_total -= 10
                         self.scroll_text.insert(END, f"{name} ", "green")
                         self.scroll_text.insert(END, "hit teammate ")
                         self.scroll_text.insert(END, f"{name_hit} (-10)\n", "green")
                     else:
+                        self.update_rankings("red")
                         self.red_total -= 10
                         self.scroll_text.insert(END, f"{name} ", "red")
                         self.scroll_text.insert(END, "hit teammate ")
@@ -138,6 +152,24 @@ class GameScreen:
             self.g_points_label.configure(text=f"{self.green_total}")
             self.g_display_grid[rank][1].configure(text=f"{points}")
 
+    
+    def update_rankings(self, team):
+        if (team == "red"):
+            sorted_red = sorted(self.red_players.items(), key=lambda item: item[1]["points"], reverse=True)
+            for i in range(len(sorted_red)):
+                if not(self.r_display_grid[i][0].cget("text") == sorted_red[i][1]["name"]):
+                    self.r_display_grid[i][0].configure(text=f"{sorted_red[i][1]['name']}")
+                    self.r_display_grid[i][1].configure(text=f"{sorted_red[i][1]['points']}")
+                    self.players[sorted_red[i][0]]["rank"] = i
+        else:
+            sorted_green = sorted(self.green_players.items(), key=lambda item: item[1]["points"], reverse=True)
+            for i in range(len(sorted_green)):
+                if not(self.g_display_grid[i][0].cget("text") == sorted_green[i][1]["name"]):
+                    self.g_display_grid[i][0].configure(text=f"{sorted_green[i][1]['name']}")
+                    self.g_display_grid[i][1].configure(text=f"{sorted_green[i][1]['points']}")
+                    self.players[sorted_green[i][0]]["rank"] = i
+
+
 
     def stop_flash(self):
         self.highest.configure(fg=self.high_color)
@@ -165,7 +197,7 @@ class GameScreen:
         self.root.geometry("1200x700")
 
         #change to 6 minutes (360 secs) when you do the actual timer
-        self.count = 60
+        self.count = 360
 
         # update geometry
         self.root.update()
@@ -283,6 +315,7 @@ class GameScreen:
         for player in (self.players):
             codename = self.players[player]["name"]
             if self.players[player]["team"] == "red":
+                self.red_players[player] = self.players[player]
                 name_label = Label(red_team_frame,
                                 bg='gray17',
                                 fg='red',
@@ -302,6 +335,7 @@ class GameScreen:
                 self.players[player]["rank"] = r
                 r = r + 1 
             else:
+                self.green_players[player] = self.players[player]
                 name_label = Label(green_team_frame,
                                 bg='gray17',
                                 fg='green',
@@ -402,17 +436,6 @@ class GameScreen:
         thread = threading.Thread(target=self.listen, daemon=True)
         thread.start()
         self.root.mainloop()
-
-
-
-
-
-
-
-
-
-
-
 
 
 
